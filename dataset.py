@@ -100,6 +100,7 @@ class KITTIOdometry(object):   # without lidar
         self.timestamps = self.left.timestamps
 
         sequence = int(path.strip(os.path.sep).split(os.path.sep)[-1])
+        print(sequence)
         if sequence < 3:
             self.cam = cam00_02
         elif sequence == 3:

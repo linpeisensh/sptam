@@ -83,7 +83,7 @@ class SPTAM(object):
         self.set_tracking(True)
 
         self.current = frame
-        print('Tracking:', frame.idx, ' <- ', self.reference.id, self.reference.idx)
+        # print('Tracking:', frame.idx, ' <- ', self.reference.id, self.reference.idx)
 
         predicted_pose, _ = self.motion_model.predict_pose(frame.timestamp)
         frame.update_pose(predicted_pose)

@@ -124,7 +124,7 @@ class SPTAM(object):
             print('tracking failed!!!')
 
         if tracking_is_ok and self.should_be_keyframe(frame, measurements):
-            print('new keyframe', frame.idx)
+            # print('new keyframe', frame.idx)
             keyframe = frame.to_keyframe()
             keyframe.update_reference(self.reference)
             keyframe.update_preceding(self.preceding)
@@ -270,7 +270,7 @@ if __name__ == '__main__':
         dataset.cam.width, dataset.cam.height,
         params.frustum_near, params.frustum_far,
         dataset.cam.baseline)
-
+    print(dataset.cam.fx)
     durations = []
     trajectory = []
     n = len(dataset)

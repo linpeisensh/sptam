@@ -293,12 +293,12 @@ if __name__ == '__main__':
             sptam.initialize(frame)
         else:
             sptam.track(frame)
-        cur_pose = frame.transform_matrix
-        for  i in range(3):
-            cur_pose[i,3] = -cur_pose[i,3]
-        cur_pose = gettfm(cur_pose)
-        cur_pose = np.linalg.inv(cur_pose)
-        cur_tra = list(cur_pose[0]) + list(cur_pose[1]) + list(cur_pose[2])
+
+        # for  i in range(3):
+        #     cur_pose[i,3] = -cur_pose[i,3]
+        R = frame.pose.orientation().matrix()
+        t = frame.pose.position()
+        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
         trajectory.append((cur_tra))
 
         # duration = time.time() - time_start
@@ -312,7 +312,7 @@ if __name__ == '__main__':
 
     print('num frames', len(durations))
     print('num keyframes', len(sptam.graph.keyframes()))
-    print('average time', np.mean(durations))
+    # print('average time', np.mean(durations))
     save_trajectory(trajectory,'trajectory.txt')
     print('save trajectory.txt successfully')
     sptam.stop()

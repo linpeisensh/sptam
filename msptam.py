@@ -294,8 +294,8 @@ if __name__ == '__main__':
         else:
             sptam.track(frame)
         cur_pose = frame.transform_matrix
-        # for  i in range(3):
-        #     cur_pose[i,3] = -cur_pose[i,3]
+        for  i in range(3):
+            cur_pose[i,3] = -cur_pose[i,3]
         cur_pose = gettfm(cur_pose)
         cur_pose = np.linalg.inv(cur_pose)
         cur_tra = list(cur_pose[0]) + list(cur_pose[1]) + list(cur_pose[2])

@@ -102,7 +102,7 @@ class SPTAM(object):
         measurements = frame.match_mappoints(
             local_mappoints, Measurement.Source.TRACKING)
 
-        print('measurements:', len(measurements), '   ', len(local_mappoints))
+        # print('measurements:', len(measurements), '   ', len(local_mappoints))
 
         tracked_map = set()
         for m in measurements:
@@ -141,9 +141,9 @@ class SPTAM(object):
             [self.preceding, self.reference])[0]
 
         can_view = frame.can_view(local_mappoints)
-        print('filter points:', len(local_mappoints), can_view.sum(),
-              len(self.preceding.mappoints()),
-              len(self.reference.mappoints()))
+        # print('filter points:', len(local_mappoints), can_view.sum(),
+        #       len(self.preceding.mappoints()),
+        #       len(self.reference.mappoints()))
 
         checked = set()
         filtered = []
@@ -286,13 +286,16 @@ if __name__ == '__main__':
         else:
             sptam.track(frame)
         cur_pose = frame.transform_matrix
+        for  i in range(3):
+            cur_pose[i,3] = -cur_pose[i,3]
         cur_tra = list(cur_pose[0]) + list(cur_pose[1]) + list(cur_pose[2])
         trajectory.append((cur_tra))
-        duration = time.time() - time_start
-        durations.append(duration)
-        print('duration', duration)
-        print()
-        print()
+
+        # duration = time.time() - time_start
+        # durations.append(duration)
+        # print('duration', duration)
+        # print()
+        # print()
 
         if visualize:
             viewer.update()
@@ -301,6 +304,7 @@ if __name__ == '__main__':
     print('num keyframes', len(sptam.graph.keyframes()))
     print('average time', np.mean(durations))
     save_trajectory(trajectory,'trajectory.txt')
+    print('save trajectory.txt successfully')
     sptam.stop()
     if visualize:
         viewer.stop()

@@ -13,8 +13,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="213" lean-forward="true" selection-end-line="302" selection-end-column="21" />
+            <state relative-caret-position="228">
+              <caret line="290" column="15" lean-forward="true" selection-start-line="286" selection-start-column="8" selection-end-line="290" selection-end-column="15" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -25,8 +25,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="367">
-              <caret line="301" column="45" lean-forward="true" selection-start-line="301" selection-start-column="45" selection-end-line="301" selection-end-column="45" />
+            <state relative-caret-position="435">
+              <caret line="301" column="56" lean-forward="true" selection-start-line="301" selection-start-column="56" selection-end-line="301" selection-end-column="56" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -94,14 +94,15 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>StereoFrame</find>
-      <find>print</find>
       <find>idx</find>
       <find>id</find>
       <find>stereoframe</find>
       <find>update</find>
       <find>update_pose</find>
-      <find>reference</find>
       <find>vi</find>
+      <find>filter</find>
+      <find>print</find>
+      <find>reference</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -169,12 +170,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="8534000" />
+      <workItem from="1610734265042" duration="9643000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8534000" />
+    <option name="totallyTimeSpent" value="9643000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -247,8 +248,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/sptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="213" lean-forward="true" selection-end-line="302" selection-end-column="21" />
+        <state relative-caret-position="228">
+          <caret line="290" column="15" lean-forward="true" selection-start-line="286" selection-start-column="8" selection-end-line="290" selection-end-column="15" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -257,8 +258,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="367">
-          <caret line="301" column="45" lean-forward="true" selection-start-line="301" selection-start-column="45" selection-end-line="301" selection-end-column="45" />
+        <state relative-caret-position="435">
+          <caret line="301" column="56" lean-forward="true" selection-start-line="301" selection-start-column="56" selection-end-line="301" selection-end-column="56" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

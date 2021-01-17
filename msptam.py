@@ -13,7 +13,6 @@ from motion import MotionModel
 from loopclosing import LoopClosing
 
 
-
 class Tracking(object):
     def __init__(self, params):
         self.optimizer = BundleAdjustment()
@@ -23,7 +22,7 @@ class Tracking(object):
     def refine_pose(self, pose, cam, measurements):
         assert len(measurements) >= self.min_measurements, (
             'Not enough points')
-            
+
         self.optimizer.clear()
         self.optimizer.add_pose(0, pose, cam, fixed=False)
 
@@ -33,7 +32,6 @@ class Tracking(object):
 
         self.optimizer.optimize(self.max_iterations)
         return self.optimizer.get_pose(0)
-
 
 
 class SPTAM(object):
@@ -48,12 +46,12 @@ class SPTAM(object):
 
         self.loop_closing = LoopClosing(self, params)
         self.loop_correction = None
-        
-        self.reference = None        # reference keyframe
-        self.preceding = None        # last keyframe
-        self.current = None          # current frame
+
+        self.reference = None  # reference keyframe
+        self.preceding = None  # last keyframe
+        self.current = None  # current frame
         self.status = defaultdict(bool)
-        
+
     def stop(self):
         self.mapping.stop()
         if self.loop_closing is not None:
@@ -112,7 +110,7 @@ class SPTAM(object):
             mappoint.update_descriptor(m.get_descriptor())
             mappoint.increase_measurement_count()
             tracked_map.add(mappoint)
-        
+
         try:
             self.reference = self.graph.get_reference_frame(tracked_map)
 
@@ -138,16 +136,15 @@ class SPTAM(object):
 
         self.set_tracking(False)
 
-
     def filter_points(self, frame):
         local_mappoints = self.graph.get_local_map_v2(
             [self.preceding, self.reference])[0]
 
         can_view = frame.can_view(local_mappoints)
-        print('filter points:', len(local_mappoints), can_view.sum(), 
-            len(self.preceding.mappoints()),
-            len(self.reference.mappoints()))
-        
+        print('filter points:', len(local_mappoints), can_view.sum(),
+              len(self.preceding.mappoints()),
+              len(self.reference.mappoints()))
+
         checked = set()
         filtered = []
         for i in np.where(can_view)[0]:
@@ -167,7 +164,6 @@ class SPTAM(object):
 
         return filtered
 
-
     def should_be_keyframe(self, frame, measurements):
         if self.adding_keyframes_stopped():
             return False
@@ -177,9 +173,8 @@ class SPTAM(object):
 
         print('keyframe check:', n_matches, '   ', n_matches_ref)
 
-        return ((n_matches / n_matches_ref) < 
-            self.params.min_tracked_points_ratio) or n_matches < 20
-
+        return ((n_matches / n_matches_ref) <
+                self.params.min_tracked_points_ratio) or n_matches < 20
 
     def set_loop_correction(self, T):
         self.loop_correction = T
@@ -211,33 +206,42 @@ class SPTAM(object):
     def adding_keyframes_stopped(self):
         return self.status['adding_keyframes_stopped']
 
-
-
-
+def save_trajectory(trajectory, filename):
+    with open(filename, 'w') as traj_file:
+        traj_file.writelines('{r00} {r01} {r02} {t0} {r10} {r11} {r12} {t1} {r20} {r21} {r22} {t2}\n'.format(
+            r00=repr(r00),
+            r01=repr(r01),
+            r02=repr(r02),
+            t0=repr(t0),
+            r10=repr(r10),
+            r11=repr(r11),
+            r12=repr(r12),
+            t1=repr(t1),
+            r20=repr(r20),
+            r21=repr(r21),
+            r22=repr(r22),
+            t2=repr(t2)
+        ) for stamp, r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
 
 if __name__ == '__main__':
-    import cv2
     import g2o
 
-    import os
-    import sys
     import argparse
 
     from threading import Thread
-    
+
     from components import Camera
     from components import StereoFrame
     from feature import ImageFeature
     from params import ParamsKITTI, ParamsEuroc
     from dataset import KITTIOdometry, EuRoCDataset
-    
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--no-viz', action='store_true', help='do not visualize')
-    parser.add_argument('--dataset', type=str, help='dataset (KITTI/EuRoC)', 
-        default='KITTI')
-    parser.add_argument('--path', type=str, help='dataset path', 
-        default='path/to/your/KITTI_odometry/sequences/00')
+    parser.add_argument('--dataset', type=str, help='dataset (KITTI/EuRoC)',
+                        default='KITTI')
+    parser.add_argument('--path', type=str, help='dataset path',
+                        default='path/to/your/KITTI_odometry/sequences/00')
     args = parser.parse_args()
 
     if args.dataset.lower() == 'kitti':
@@ -252,52 +256,51 @@ if __name__ == '__main__':
     visualize = not args.no_viz
     if visualize:
         from viewer import MapViewer
+
         viewer = MapViewer(sptam, params)
 
-
     cam = Camera(
-        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy, 
-        dataset.cam.width, dataset.cam.height, 
-        params.frustum_near, params.frustum_far, 
+        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
+        dataset.cam.width, dataset.cam.height,
+        params.frustum_near, params.frustum_far,
         dataset.cam.baseline)
 
-
-
     durations = []
+    trajectory = []
     for i in range(len(dataset))[:100]:
         featurel = ImageFeature(dataset.left[i], params)
         featurer = ImageFeature(dataset.right[i], params)
         timestamp = dataset.timestamps[i]
 
-        time_start = time.time()  
+        time_start = time.time()
 
         t = Thread(target=featurer.extract)
         t.start()
         featurel.extract()
         t.join()
-        
+
         frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 
         if not sptam.is_initialized():
             sptam.initialize(frame)
         else:
             sptam.track(frame)
-
-
+        cur_pose = frame.transform_matrix
+        cur_tra = list(cur_pose[0]) + list(cur_pose[1]) + list(cur_pose[2])
+        trajectory.append((cur_tra))
         duration = time.time() - time_start
         durations.append(duration)
         print('duration', duration)
         print()
         print()
-        
+
         if visualize:
             viewer.update()
 
     print('num frames', len(durations))
     print('num keyframes', len(sptam.graph.keyframes()))
     print('average time', np.mean(durations))
-
-
+    save_trajectory(trajectory,'trajectory.txt')
     sptam.stop()
     if visualize:
         viewer.stop()

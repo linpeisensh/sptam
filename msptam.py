@@ -171,7 +171,7 @@ class SPTAM(object):
         n_matches = len(measurements)
         n_matches_ref = len(self.reference.measurements())
 
-        print('keyframe check:', n_matches, '   ', n_matches_ref)
+        # print('keyframe check:', n_matches, '   ', n_matches_ref)
 
         return ((n_matches / n_matches_ref) <
                 self.params.min_tracked_points_ratio) or n_matches < 20
@@ -223,6 +223,12 @@ def save_trajectory(trajectory, filename):
             t2=repr(t2)
         ) for r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
 
+def gettfm(tf):
+  res = np.zeros((4,4))
+  res[:3,:] = tf
+  res[3,3] = 1
+  return res
+
 if __name__ == '__main__':
     import g2o
 
@@ -267,7 +273,9 @@ if __name__ == '__main__':
 
     durations = []
     trajectory = []
-    for i in range(len(dataset)):
+    n = len(dataset)
+    print('sequence {}: {} images'.format(args.path[-2:],n))
+    for i in range(n):
         featurel = ImageFeature(dataset.left[i], params)
         featurer = ImageFeature(dataset.right[i], params)
         timestamp = dataset.timestamps[i]
@@ -286,8 +294,10 @@ if __name__ == '__main__':
         else:
             sptam.track(frame)
         cur_pose = frame.transform_matrix
-        for  i in range(3):
-            cur_pose[i,3] = -cur_pose[i,3]
+        # for  i in range(3):
+        #     cur_pose[i,3] = -cur_pose[i,3]
+        cur_pose = gettfm(cur_pose)
+        cur_pose = np.linalg.inv(cur_pose)
         cur_tra = list(cur_pose[0]) + list(cur_pose[1]) + list(cur_pose[2])
         trajectory.append((cur_tra))
 

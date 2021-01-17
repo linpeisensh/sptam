@@ -221,7 +221,7 @@ def save_trajectory(trajectory, filename):
             r21=repr(r21),
             r22=repr(r22),
             t2=repr(t2)
-        ) for stamp, r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
+        ) for r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
 
 if __name__ == '__main__':
     import g2o
@@ -267,7 +267,7 @@ if __name__ == '__main__':
 
     durations = []
     trajectory = []
-    for i in range(len(dataset))[:100]:
+    for i in range(len(dataset)):
         featurel = ImageFeature(dataset.left[i], params)
         featurer = ImageFeature(dataset.right[i], params)
         timestamp = dataset.timestamps[i]

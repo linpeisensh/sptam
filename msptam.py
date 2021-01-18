@@ -12,6 +12,45 @@ from components import Measurement
 from motion import MotionModel
 from loopclosing import LoopClosing
 
+from maskrcnn_benchmark.config import cfg
+from demo.predictor import COCODemo
+
+def get_mask(image, coco_demo):
+    prediction = coco_demo.compute_prediction(image)
+    top = coco_demo.select_top_predictions(prediction)
+    masks = top.get_field("mask").numpy()
+    h,w,c = image.shape
+    rmask = np.zeros((h,w,1)).astype(np.bool)
+    for mask in masks:
+        rmask |= mask[0, :, :, None]
+    rmask = rmask.astype(np.uint8)
+    return rmask
+
+def maskofkp(kp,l_mask):
+  n = len(kp)
+  l_mask = l_mask.squeeze()
+  mok = []
+  for i in range(n):
+    x,y = map(int,kp[i].pt)
+    mok.append(l_mask[y,x]==0)
+  return np.array(mok)
+
+def save_trajectory(trajectory, filename):
+    with open(filename, 'w') as traj_file:
+        traj_file.writelines('{r00} {r01} {r02} {t0} {r10} {r11} {r12} {t1} {r20} {r21} {r22} {t2}\n'.format(
+            r00=repr(r00),
+            r01=repr(r01),
+            r02=repr(r02),
+            t0=repr(t0),
+            r10=repr(r10),
+            r11=repr(r11),
+            r12=repr(r12),
+            t1=repr(t1),
+            r20=repr(r20),
+            r21=repr(r21),
+            r22=repr(r22),
+            t2=repr(t2)
+        ) for r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
 
 class Tracking(object):
     def __init__(self, params):
@@ -206,28 +245,6 @@ class SPTAM(object):
     def adding_keyframes_stopped(self):
         return self.status['adding_keyframes_stopped']
 
-def save_trajectory(trajectory, filename):
-    with open(filename, 'w') as traj_file:
-        traj_file.writelines('{r00} {r01} {r02} {t0} {r10} {r11} {r12} {t1} {r20} {r21} {r22} {t2}\n'.format(
-            r00=repr(r00),
-            r01=repr(r01),
-            r02=repr(r02),
-            t0=repr(t0),
-            r10=repr(r10),
-            r11=repr(r11),
-            r12=repr(r12),
-            t1=repr(t1),
-            r20=repr(r20),
-            r21=repr(r21),
-            r22=repr(r22),
-            t2=repr(t2)
-        ) for r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
-
-def gettfm(tf):
-  res = np.zeros((4,4))
-  res[:3,:] = tf
-  res[3,3] = 1
-  return res
 
 if __name__ == '__main__':
     import g2o
@@ -244,6 +261,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--no-viz', action='store_true', help='do not visualize')
+    parser.add_argument('--cocopath', type=str, help='coco path',
+                        default='../maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml')
+    parser.add_argument('--device', type=str, help='device (cpu/cuda)',
+                        default='cpu')
     parser.add_argument('--dataset', type=str, help='dataset (KITTI/EuRoC)',
                         default='KITTI')
     parser.add_argument('--path', type=str, help='dataset path',
@@ -275,6 +296,20 @@ if __name__ == '__main__':
     trajectory = []
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
+
+    config_file = args.cocopath
+    # "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
+
+    # update the config options with the config file
+    cfg.merge_from_file(config_file)
+    # manual override some options
+    cfg.merge_from_list(["MODEL.DEVICE", args.device])
+    coco_demo = COCODemo(
+        cfg,
+        min_image_size=800,
+        confidence_threshold=0.7,
+    )
+
     for i in range(n):
         featurel = ImageFeature(dataset.left[i], params)
         featurer = ImageFeature(dataset.right[i], params)
@@ -286,6 +321,19 @@ if __name__ == '__main__':
         t.start()
         featurel.extract()
         t.join()
+
+        lm = get_mask(dataset.left[i],coco_demo)
+        rm = get_mask(dataset.right[i],coco_demo)
+        ofl = np.array(featurel.keypoints)
+        ofr = np.array(featurer.keypoints)
+        flm = maskofkp(ofl, lm)
+        frm = maskofkp(ofr, rm)
+        featurel.keypoints = list(ofl[flm])
+        featurer.keypoints = list(ofr[frm])
+        featurel.descriptors = featurel.descriptors[flm]
+        featurer.descriptors = featurer.descriptors[frm]
+        featurel.unmatched = featurel.unmatched[flm]
+        featurer.unmatched = featurer.unmatched[frm]
 
         frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 

@@ -473,7 +473,7 @@ if __name__ == '__main__':
         params = ParamsEuroc()
         dataset = EuRoCDataset(args.path)
 
-    disp_path = '/usr/stud/linp/storage/user/linp/disparity/' + args.path[-2:]
+    disp_path = '/usr/stud/linp/storage/user/linp/disparity/' + args.path[-2:] + '/'
 
     feature_params = dict(maxCorners=1000,
                           qualityLevel=0.1,

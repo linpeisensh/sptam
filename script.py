@@ -3,13 +3,13 @@ import cv2 as cv
 
 
 class DynaSeg():
-    def __init__(self,iml,imr,coco_demo,):
+    def __init__(self,iml,imr,coco_demo, feature_params):
         self.iml = iml
         self.imr = imr
         self.coco = coco_demo
         self.h, self.w = self.iml.shape[:2]
-        self.old_gray = None
-        self.p =
+        self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
+        self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **feature_params)
 
     def get_instance_mask(self):
         image = self.iml.astype(np.uint8)

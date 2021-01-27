@@ -574,10 +574,12 @@ if __name__ == '__main__':
         featurel.extract()
         t.join()
 
-            
-        if i >= 200:
+
+        if 0< i < 100:
             cv.imwrite('./dyn/{}_mask.jpg'.format(i), c)
             cv.imwrite('./dyn/{}_ori.jpg'.format(i), iml)
+        if i > 100:
+            break
 
         if i:
             lm = c

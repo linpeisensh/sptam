@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="14">
-              <caret line="592" lean-forward="true" selection-start-line="592" selection-end-line="592" />
+            <state relative-caret-position="1667">
+              <caret line="610" column="50" lean-forward="true" selection-start-line="610" selection-start-column="50" selection-end-line="610" selection-end-column="50" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,8 +40,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/params.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-456">
-              <caret line="82" column="59" selection-start-line="82" selection-start-column="40" selection-end-line="82" selection-end-column="59" />
+            <state relative-caret-position="190">
+              <caret line="89" column="36" lean-forward="true" selection-start-line="89" selection-start-column="36" selection-end-line="89" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -88,8 +88,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="1" column="25" lean-forward="true" selection-start-line="1" selection-start-column="25" selection-end-line="1" selection-end-column="25" />
+            <state relative-caret-position="38">
+              <caret line="11" column="16" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -123,11 +126,18 @@
       <find>params</find>
       <find>dataset</find>
       <find>init_kf</find>
-      <find>get_instance_mask</find>
-      <find>dyn_seg</find>
       <find>reference</find>
       <find>cverror</find>
+      <find>get_instance_mask</find>
+      <find>coco_demo</find>
+      <find>dyn_seg</find>
+      <find>getRectifyTransform</find>
+      <find>old_gray</find>
     </findStrings>
+    <replaceStrings>
+      <replace>self.coco</replace>
+      <replace>self.old_gray</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -224,12 +234,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="33618000" />
+      <workItem from="1610734265042" duration="36916000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="33618000" />
+    <option name="totallyTimeSpent" value="36916000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -302,13 +312,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/script.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="1" column="25" lean-forward="true" selection-start-line="1" selection-start-column="25" selection-end-line="1" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sptam.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
@@ -321,15 +324,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/params.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-456">
-          <caret line="82" column="59" selection-start-line="82" selection-start-column="40" selection-end-line="82" selection-end-column="59" />
+        <state relative-caret-position="190">
+          <caret line="89" column="36" lean-forward="true" selection-start-line="89" selection-start-column="36" selection-end-line="89" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="11" column="16" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14">
-          <caret line="592" lean-forward="true" selection-start-line="592" selection-end-line="592" />
+        <state relative-caret-position="1667">
+          <caret line="610" column="50" lean-forward="true" selection-start-line="610" selection-start-column="50" selection-end-line="610" selection-end-column="50" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

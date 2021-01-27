@@ -509,7 +509,8 @@ if __name__ == '__main__':
         dataset.cam.baseline)
     print(dataset.cam.fx)
 
-    trajectory = []
+    otrajectory = []
+    atrajectory = []
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
 
@@ -549,6 +550,10 @@ if __name__ == '__main__':
         else:
             sptam0.track(frame)
 
+        R = frame.pose.orientation().matrix()
+        t = frame.pose.position()
+        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+        otrajectory.append((cur_tra))
         if i % 5 == 0:
             if i:
                 c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
@@ -568,6 +573,9 @@ if __name__ == '__main__':
         t.start()
         featurel.extract()
         t.join()
+
+        if i % 50 == 0:
+            cv.imwrite('./dyn/{}_mask.jpg'.format(i),c)
 
         if i:
             lm = c
@@ -595,7 +603,7 @@ if __name__ == '__main__':
         R = frame.pose.orientation().matrix()
         t = frame.pose.position()
         cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-        trajectory.append((cur_tra))
+        atrajectory.append((cur_tra))
 
 
         if visualize:
@@ -603,7 +611,8 @@ if __name__ == '__main__':
 
 
     # print('average time', np.mean(durations))
-    save_trajectory(trajectory,'trajectory.txt')
+    save_trajectory(otrajectory,'otrajectory.txt')
+    save_trajectory(atrajectory,'atrajectory.txt')
     print('save trajectory.txt successfully')
     sptam0.stop()
     sptam1.stop()

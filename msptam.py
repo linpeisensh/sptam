@@ -576,6 +576,7 @@ if __name__ == '__main__':
 
         if i % 50 == 0:
             cv.imwrite('./dyn/{}_mask.jpg'.format(i),c)
+            cv.imwrite('./dyn/{}_ori.jpg'.format(i), iml)
 
         if i:
             lm = c

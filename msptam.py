@@ -399,7 +399,6 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     P = P[error < 1e6]
     imgpts = imgpts[error < 1e6].astype(np.float32)
     error = error[error < 1e6]
-    cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
     nl2m, res = get_instance_mask(l2,coco_demo)
     nl2m_dil = cv.dilate(nl2m, kernel)[:, :, None]
     merror = np.array(error)
@@ -425,7 +424,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     c = np.zeros_like(nl2m_dil)
     for i in nres:
         c[nl2m_dil == i] = 255
-    return c, cverror, p1, old_gray
+    return c, p1, old_gray
 
 def get_instance_mask(image,coco_demo):
     image = image.astype(np.uint8)
@@ -552,14 +551,14 @@ if __name__ == '__main__':
 
         if i % 5 == 0:
             if i:
-                c, cverror, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
+                c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
             points_3d, old_gray, p = init_kf(i, config,iml,imr,disp_path,feature_params)
             p1 = np.array(p)
             ast = np.ones((p1.shape[0], 1))
 
             otfm = np.linalg.inv(Rt_to_tran(frame.transform_matrix))
         else:
-            c, cverror, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
+            c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
 
 
         featurel = ImageFeature(iml, params)
@@ -592,18 +591,6 @@ if __name__ == '__main__':
         else:
             sptam1.track(frame)
 
-        if i % 5 == 0:
-            if i:
-                c, cverror, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d, iml, lk_params, mtx, dist,
-                                                   kernel,coco_demo)
-            points_3d, old_gray, p = init_kf(i, config, iml,imr,disp_path,feature_params)
-            p1 = np.array(p)
-            ast = np.ones((p1.shape[0], 1))
-
-            otfm = np.linalg.inv(Rt_to_tran(frame.transform_matrix))
-        else:
-            c, cverror, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d, iml, lk_params, mtx, dist,
-                                               kernel,coco_demo)
 
         R = frame.pose.orientation().matrix()
         t = frame.pose.position()

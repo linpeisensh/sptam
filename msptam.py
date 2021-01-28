@@ -16,17 +16,6 @@ from loopclosing import LoopClosing
 from maskrcnn_benchmark.config import cfg
 from demo.predictor import COCODemo
 
-import g2o
-
-
-from threading import Thread
-
-from components import Camera
-from components import StereoFrame
-from feature import ImageFeature
-from params import ParamsKITTI, ParamsEuroc
-from dataset import KITTIOdometry, EuRoCDataset
-
 def get_mask(image, coco_demo):
     prediction = coco_demo.compute_prediction(image)
     top = coco_demo.select_top_predictions(prediction)
@@ -434,7 +423,6 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             if co / ao > 0.5:
                 nres.add(o)
     c = np.zeros_like(nl2m_dil)
-    print(nres)
     for i in nres:
         c[nl2m_dil == i] = 255
     return c, p1, old_gray
@@ -453,145 +441,185 @@ def get_instance_mask(image,coco_demo):
         rmask[mask] = i+1
     return rmask, i + 1
 
-params = ParamsKITTI()
-dataset = KITTIOdometry('/work/linp/dataset/kittic/sequences/08')
-disp_path = '/usr/stud/linp/storage/user/linp/disparity/08/'
-config_file = "/usr/stud/linp/storage/user/linp/maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
+if __name__ == '__main__':
+    import g2o
 
-feature_params = dict(maxCorners=1000,
-                      qualityLevel=0.1,
-                      minDistance=7,
-                      blockSize=7)
+    import argparse
 
-# Parameters for lucas kanade optical flow
-lk_params = dict(winSize=(15, 15),
-                 maxLevel=2,
-                 criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+    from threading import Thread
 
+    from components import Camera
+    from components import StereoFrame
+    from feature import ImageFeature
+    from params import ParamsKITTI, ParamsEuroc
+    from dataset import KITTIOdometry, EuRoCDataset
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--no-viz', action='store_true', help='do not visualize')
+    parser.add_argument('--cocopath', type=str, help='coco path',
+                        default='../maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml')
+    parser.add_argument('--device', type=str, help='device (cpu/cuda)',
+                        default='cpu')
+    parser.add_argument('--dataset', type=str, help='dataset (KITTI/EuRoC)',
+                        default='KITTI')
+    parser.add_argument('--path', type=str, help='dataset path',
+                        default='path/to/your/KITTI_odometry/sequences/00')
+    args = parser.parse_args()
 
-sptam0 = SPTAM(params)
-sptam1 = SPTAM(params)
+    if args.dataset.lower() == 'kitti':
+        params = ParamsKITTI()
+        dataset = KITTIOdometry(args.path)
+    elif args.dataset.lower() == 'euroc':
+        params = ParamsEuroc()
+        dataset = EuRoCDataset(args.path)
 
-config = stereoCamera()
-mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
-dist = np.array([[0] * 4]).reshape(1, 4).astype(np.float32)
+    disp_path = '/usr/stud/linp/storage/user/linp/disparity/' + args.path[-2:] + '/'
 
-dilation = 5
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
+    feature_params = dict(maxCorners=1000,
+                          qualityLevel=0.1,
+                          minDistance=7,
+                          blockSize=7)
 
-
-cam = Camera(
-    dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
-    dataset.cam.width, dataset.cam.height,
-    params.frustum_near, params.frustum_far,
-    dataset.cam.baseline)
-print(dataset.cam.fx)
-
-otrajectory = []
-atrajectory = []
-n = len(dataset)
-
-# "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
-
-# update the config options with the config file
-cfg.merge_from_file(config_file)
-# manual override some options
-cfg.merge_from_list(["MODEL.DEVICE", 'cpu'])
-coco_demo = COCODemo(
-    cfg,
-    min_image_size=800,
-    confidence_threshold=0.7,
-)
-
-for i in range(n):
-    iml = dataset.left[i]
-    imr = dataset.right[i]
-    featurel = ImageFeature(iml, params)
-    featurer = ImageFeature(imr, params)
-    timestamp = dataset.timestamps[i]
-
-    time_start = time.time()
-
-    t = Thread(target=featurer.extract)
-    t.start()
-    featurel.extract()
-    t.join()
+    # Parameters for lucas kanade optical flow
+    lk_params = dict(winSize=(15, 15),
+                     maxLevel=2,
+                     criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 
 
-    print('original {}. frame'.format(i))
-    frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 
-    if not sptam0.is_initialized():
-        sptam0.initialize(frame)
-    else:
-        sptam0.track(frame)
+    sptam0 = SPTAM(params)
+    sptam1 = SPTAM(params)
 
-    R = frame.pose.orientation().matrix()
-    t = frame.pose.position()
-    cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-    otrajectory.append((cur_tra))
-    if i % 5 == 0:
-        if i:
+    config = stereoCamera()
+    mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
+    dist = np.array([[0] * 4]).reshape(1, 4).astype(np.float32)
+
+    dilation = 5
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
+
+
+    visualize = not args.no_viz
+    if visualize:
+        from viewer import MapViewer
+        viewer = MapViewer(sptam1, params)
+
+    cam = Camera(
+        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
+        dataset.cam.width, dataset.cam.height,
+        params.frustum_near, params.frustum_far,
+        dataset.cam.baseline)
+    print(dataset.cam.fx)
+
+    otrajectory = []
+    atrajectory = []
+    n = len(dataset)
+    print('sequence {}: {} images'.format(args.path[-2:],n))
+
+    config_file = args.cocopath
+    # "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
+
+    # update the config options with the config file
+    cfg.merge_from_file(config_file)
+    # manual override some options
+    cfg.merge_from_list(["MODEL.DEVICE", args.device])
+    coco_demo = COCODemo(
+        cfg,
+        min_image_size=800,
+        confidence_threshold=0.7,
+    )
+
+    for i in range(n):
+        iml = dataset.left[i]
+        imr = dataset.right[i]
+        featurel = ImageFeature(iml, params)
+        featurer = ImageFeature(imr, params)
+        timestamp = dataset.timestamps[i]
+
+        time_start = time.time()
+
+        t = Thread(target=featurer.extract)
+        t.start()
+        featurel.extract()
+        t.join()
+
+
+        print('original {}. frame'.format(i))
+        frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+
+        if not sptam0.is_initialized():
+            sptam0.initialize(frame)
+        else:
+            sptam0.track(frame)
+
+        R = frame.pose.orientation().matrix()
+        t = frame.pose.position()
+        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+        otrajectory.append((cur_tra))
+        if i % 5 == 0:
+            if i:
+                c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
+            points_3d, old_gray, p = init_kf(i, config,iml,imr,disp_path,feature_params)
+            p1 = np.array(p)
+            ast = np.ones((p1.shape[0], 1))
+
+            otfm = np.linalg.inv(Rt_to_tran(frame.transform_matrix))
+        else:
             c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
-        points_3d, old_gray, p = init_kf(i, config,iml,imr,disp_path,feature_params)
-        p1 = np.array(p)
-        ast = np.ones((p1.shape[0], 1))
-
-        otfm = np.linalg.inv(Rt_to_tran(frame.transform_matrix))
-    else:
-        c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)
 
 
-    featurel = ImageFeature(iml, params)
-    featurer = ImageFeature(imr, params)
+        featurel = ImageFeature(iml, params)
+        featurer = ImageFeature(imr, params)
 
-    t = Thread(target=featurer.extract)
-    t.start()
-    featurel.extract()
-    t.join()
-
-
-    if 0< i < 100:
-        cv.imwrite('./dyn/{}_mask.jpg'.format(i), c)
-        cv.imwrite('./dyn/{}_ori.jpg'.format(i), iml)
-    if i > 100:
-        break
-
-    if i:
-        lm = c
-        rm = c
-        ofl = np.array(featurel.keypoints)
-        ofr = np.array(featurer.keypoints)
-        flm = maskofkp(ofl, lm)
-        frm = maskofkp(ofr, rm)
-        featurel.keypoints = list(ofl[flm])
-        featurer.keypoints = list(ofr[frm])
-        featurel.descriptors = featurel.descriptors[flm]
-        featurer.descriptors = featurer.descriptors[frm]
-        featurel.unmatched = featurel.unmatched[flm]
-        featurer.unmatched = featurer.unmatched[frm]
-
-    print('after mask {}. frame'.format(i))
-    frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
-
-    if not sptam1.is_initialized():
-        sptam1.initialize(frame)
-    else:
-        sptam1.track(frame)
+        t = Thread(target=featurer.extract)
+        t.start()
+        featurel.extract()
+        t.join()
 
 
-    R = frame.pose.orientation().matrix()
-    t = frame.pose.position()
-    cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-    atrajectory.append((cur_tra))
+        if 0< i < 100:
+            cv.imwrite('./dyn/{}_mask.jpg'.format(i), c)
+            cv.imwrite('./dyn/{}_ori.jpg'.format(i), iml)
+        if i > 100:
+            break
+
+        if i:
+            lm = c
+            rm = c
+            ofl = np.array(featurel.keypoints)
+            ofr = np.array(featurer.keypoints)
+            flm = maskofkp(ofl, lm)
+            frm = maskofkp(ofr, rm)
+            featurel.keypoints = list(ofl[flm])
+            featurer.keypoints = list(ofr[frm])
+            featurel.descriptors = featurel.descriptors[flm]
+            featurer.descriptors = featurer.descriptors[frm]
+            featurel.unmatched = featurel.unmatched[flm]
+            featurer.unmatched = featurer.unmatched[frm]
+
+        print('after mask {}. frame'.format(i))
+        frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+
+        if not sptam1.is_initialized():
+            sptam1.initialize(frame)
+        else:
+            sptam1.track(frame)
 
 
+        R = frame.pose.orientation().matrix()
+        t = frame.pose.position()
+        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+        atrajectory.append((cur_tra))
 
 
-# print('average time', np.mean(durations))
-save_trajectory(otrajectory,'otrajectory.txt')
-save_trajectory(atrajectory,'atrajectory.txt')
-print('save trajectory.txt successfully')
-sptam0.stop()
-sptam1.stop()
+        if visualize:
+            viewer.update()
+
+
+    # print('average time', np.mean(durations))
+    save_trajectory(otrajectory,'otrajectory.txt')
+    save_trajectory(atrajectory,'atrajectory.txt')
+    print('save trajectory.txt successfully')
+    sptam0.stop()
+    sptam1.stop()
+    if visualize:
+        viewer.stop()

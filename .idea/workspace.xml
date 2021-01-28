@@ -28,10 +28,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="456" column="65" selection-start-line="456" selection-start-column="65" selection-end-line="456" selection-end-column="65" />
+            <state relative-caret-position="255">
+              <caret line="448" lean-forward="true" selection-start-line="448" selection-end-line="448" />
               <folding>
-                <element signature="e#449#467#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -239,12 +239,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="46558000" />
+      <workItem from="1610734265042" duration="48317000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46558000" />
+    <option name="totallyTimeSpent" value="48317000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -346,10 +346,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="456" column="65" selection-start-line="456" selection-start-column="65" selection-end-line="456" selection-end-column="65" />
+        <state relative-caret-position="255">
+          <caret line="448" lean-forward="true" selection-start-line="448" selection-end-line="448" />
           <folding>
-            <element signature="e#449#467#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

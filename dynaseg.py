@@ -85,8 +85,12 @@ class DynaSeg():
     def get_points(self, i, iml, imr):
         iml_, imr_ = preprocess(iml,imr)
         disp, _ = self.stereoMatchSGBM(iml_, imr_, False)
+        print(np.sum(disp))
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
+        print(self.disp_path + str(i).zfill(6) + '.npy')
+        print(np.sum(dis))
         disp[disp == 0] = dis[disp == 0]
+        print(np.sum(disp))
         points = cv.reprojectImageTo3D(disp, self.Q)
         print(points[100,100])
         print(self.Q)
@@ -107,8 +111,6 @@ class DynaSeg():
         P = p1[self.ast == 1]
 
         objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
-        print('p', self.p[self.ast == 1].squeeze()[0])
-        print('obj',objpa[0])
         imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
         imgpts = imgpts.squeeze()
         P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]

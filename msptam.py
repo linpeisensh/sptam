@@ -364,11 +364,13 @@ def init_kf(i, config,iml,imr,disp_path,feature_params):
 
     iml_, imr_ = preprocess(iml, imr)
     disp, _ = stereoMatchSGBM(iml_, imr_, False)
-    dis = np.load(disp_path+ str(i).zfill(6) + '.npy')
+    print(np.sum(disp))
+    dis = np.load(disp_path + str(i).zfill(6) + '.npy')
+    print(disp_path + str(i).zfill(6) + '.npy')
+    print(np.sum(dis))
     disp[disp == 0] = dis[disp == 0]
+    print(np.sum(disp))
     points = cv.reprojectImageTo3D(disp, Q)
-    print(points_3d[100, 100])
-    print(Q)
     old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
     p = cv.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
     return points, old_gray, p

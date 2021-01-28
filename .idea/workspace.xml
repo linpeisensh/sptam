@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="569" column="68" lean-forward="true" selection-start-line="569" selection-start-column="19" selection-end-line="569" selection-end-column="68" />
+            <state relative-caret-position="65">
+              <caret line="450" lean-forward="true" selection-end-line="622" selection-end-column="21" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -38,10 +38,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/script.py">
+        <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1178">
-              <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-start-column="16" selection-end-line="152" selection-end-column="16" />
+            <state relative-caret-position="141">
+              <caret line="539" column="105" selection-start-line="539" selection-start-column="105" selection-end-line="539" selection-end-column="105" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -50,6 +50,18 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/dynaseg.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1881">
+              <caret line="24" column="22" lean-forward="true" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/params.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="190">
@@ -88,8 +100,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-689">
-              <caret line="102" column="22" selection-start-line="102" selection-start-column="22" selection-end-line="102" selection-end-column="22" />
+            <state relative-caret-position="160">
+              <caret line="91" column="39" selection-start-line="91" selection-start-column="39" selection-end-line="91" selection-end-column="39" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -108,11 +120,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>detector</find>
-      <find>Camera</find>
-      <find>params</find>
-      <find>dataset</find>
-      <find>init_kf</find>
       <find>reference</find>
       <find>get_instance_mask</find>
       <find>dyn_seg</find>
@@ -138,6 +145,11 @@
       <find>coco_demo</find>
       <find>otfm</find>
       <find>kernel</find>
+      <find>self.i</find>
+      <find>feature_params</find>
+      <find>get_mask</find>
+      <find>maskofkp</find>
+      <find>dataset</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -161,10 +173,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/sptam.py" />
-        <option value="$PROJECT_DIR$/dataset.py" />
         <option value="$PROJECT_DIR$/msptam.py" />
-        <option value="$PROJECT_DIR$/script.py" />
         <option value="$PROJECT_DIR$/params.py" />
+        <option value="$PROJECT_DIR$/script.py" />
+        <option value="$PROJECT_DIR$/dataset.py" />
+        <option value="$PROJECT_DIR$/dysptam.py" />
+        <option value="$PROJECT_DIR$/dynaseg.py" />
       </list>
     </option>
   </component>
@@ -251,19 +265,19 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="57847000" />
+      <workItem from="1610734265042" duration="60764000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57847000" />
+    <option name="totallyTimeSpent" value="60764000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14589666" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14589666" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" />
@@ -273,7 +287,7 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.2147541" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2147541" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -289,16 +303,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-689">
-          <caret line="102" column="22" selection-start-line="102" selection-start-column="22" selection-end-line="102" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/viewer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -339,30 +343,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/msptam.py">
+    <entry file="file://$PROJECT_DIR$/params.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="569" column="68" lean-forward="true" selection-start-line="569" selection-start-column="19" selection-end-line="569" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="190">
+          <caret line="85" lean-forward="true" selection-start-line="85" selection-end-line="85" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/script.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1178">
-          <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-start-column="16" selection-end-line="152" selection-end-column="16" />
+        <state relative-caret-position="-912">
+          <caret line="101" column="64" lean-forward="true" selection-start-line="101" selection-start-column="64" selection-end-line="101" selection-end-column="64" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/params.py">
+    <entry file="file://$PROJECT_DIR$/dynseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="85" lean-forward="true" selection-start-line="85" selection-end-line="85" />
+        <state>
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="91" column="39" selection-start-line="91" selection-start-column="39" selection-end-line="91" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/msptam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="65">
+          <caret line="450" lean-forward="true" selection-end-line="622" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dysptam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141">
+          <caret line="539" column="105" selection-start-line="539" selection-start-column="105" selection-end-line="539" selection-end-column="105" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dynaseg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1881">
+          <caret line="24" column="22" lean-forward="true" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

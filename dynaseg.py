@@ -4,24 +4,30 @@ import os
 
 
 class DynaSeg():
-    def __init__(self,i,data_path, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation,k_frame):
-        self.i = i
-        self.iml = cv.imread(os.path.join(data_path, 'image_2', "{0:06}.png".format(i)), cv.IMREAD_UNCHANGED)
-        self.imr = cv.imread(os.path.join(data_path, 'image_3', "{0:06}.png".format(i)), cv.IMREAD_UNCHANGED)
+    def __init__(self,data_path, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation):
+        self.data_path = data_path
         self.coco = coco_demo
-        self.h, self.w = self.iml.shape[:2]
-        self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
-        self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **feature_params)
+        self.feature_params = feature_params
         self.dis_path = dis_path
         self.config = config
         self.Q = self.getRectifyTransform()
         self.paraml = paraml
-        self.points = self.get_points()
+
         self.lk_params = lk_params
-        self.ast = np.ones((self.p.shape[0], 1))
+
         self.mtx = mtx
         self.dist = dist
         self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
+
+
+    def updata(self,iml, imr, i,k_frame):
+        self.iml = iml
+        self.imr = cv.imread(self.right[i], cv.IMREAD_UNCHANGED)
+        self.h, self.w = self.iml.shape[:2]
+        self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
+        self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
+        self.ast = np.ones((self.p.shape[0], 1))
+        self.points = self.get_points(i)
         self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
 
 
@@ -90,16 +96,16 @@ class DynaSeg():
 
         return trueDisp_left, trueDisp_right
 
-    def get_points(self):
+    def get_points(self, i):
         iml_, imr_ = self.preprocess(self.iml, self.imr)
         disp, _ = self.stereoMatchSGBM(iml_, imr_, False)
-        dis = np.load(self.disp_path + str(self.i).zfill(6) + '.npy')
+        dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
         points = cv.reprojectImageTo3D(disp, self.Q)
         return points
 
-    def dyn_seg(self,frame):
-        frame_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
+    def dyn_seg(self, frame, iml):
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         # calculate optical flow
         p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p, None, **self.lk_params)
         self.ast *= st

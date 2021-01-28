@@ -90,14 +90,9 @@ class KITTIOdometry(object):   # without lidar
         cam04_12 = Cam(707.0912, 707.0912, 601.8873, 183.1104, 1241, 376, 0.53715)
 
         path = os.path.expanduser(path)
-        timestamps = np.loadtxt(os.path.join(path, 'times.txt'))
-        self.left = ImageReader(self.listdir(os.path.join(path, 'image_2')), 
-            timestamps)
-        self.right = ImageReader(self.listdir(os.path.join(path, 'image_3')), 
-            timestamps)
+        self.left, self.right, self.timestamps = self.load_images(path)
 
         assert len(self.left) == len(self.right)
-        self.timestamps = self.left.timestamps
 
         sequence = int(path.strip(os.path.sep).split(os.path.sep)[-1])
         print(sequence)
@@ -108,12 +103,20 @@ class KITTIOdometry(object):   # without lidar
         elif sequence < 13:
             self.cam = cam04_12
 
-    def sort(self, xs):
-        return sorted(xs, key=lambda x:float(x[:-4]))
+    def load_images(self, path_to_sequence):
+        timestamps = []
+        with open(os.path.join(path_to_sequence, 'times.txt')) as times_file:
+            for line in times_file:
+                if len(line) > 0:
+                    timestamps.append(float(line))
 
-    def listdir(self, dir):
-        files = [_ for _ in os.listdir(dir) if _.endswith('.png')]
-        return [os.path.join(dir, _) for _ in self.sort(files)]
+        return [
+                   os.path.join(path_to_sequence, 'image_2', "{0:06}.png".format(idx))
+                   for idx in range(len(timestamps))
+               ], [
+                   os.path.join(path_to_sequence, 'image_3', "{0:06}.png".format(idx))
+                   for idx in range(len(timestamps))
+               ], timestamps
 
     def __len__(self):
         return len(self.left)

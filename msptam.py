@@ -361,11 +361,7 @@ def init_kf(i, config,iml,imr,disp_path,feature_params):
     height, width = iml.shape[0:2]
 
     map1x, map1y, map2x, map2y, Q = getRectifyTransform(height, width, config)
-    print('iml', np.sum(iml))
-    print('imr', np.sum(imr))
     iml_, imr_ = preprocess(iml, imr)
-    print('iml_', np.sum(iml_))
-    print('imr_', np.sum(imr_))
     disp, _ = stereoMatchSGBM(iml_, imr_, False)
     print(np.sum(disp))
     dis = np.load(disp_path + str(i).zfill(6) + '.npy')

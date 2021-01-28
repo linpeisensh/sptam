@@ -388,7 +388,6 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     t = tfm[:3, 3].reshape((3, 1))
 
     P = p1[ast == 1]
-    print(len(P))
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
     imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
     imgpts = imgpts.squeeze()
@@ -402,6 +401,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     error = error[error < 1e6]
     nl2m, res = get_instance_mask(l2,coco_demo)
     nl2m_dil = cv.dilate(nl2m, kernel)[:, :, None]
+    cv.imwrite('dyn/0.png',nl2m_dil*255)
     merror = np.array(error)
     cverror = cv.norm(P, imgpts, cv.NORM_L2)/len(imgpts)
     print(cverror)
@@ -412,8 +412,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             merror[i] = max(merror[i] - 325, 0)
     ge = merror > np.median(error)
     nres = set()
-    print(res)
-    print(np.sum(ge))
+    print(np.sum(nl2m_dil))
     for o in range(1, res + 1):
         ao = 0
         co = 0

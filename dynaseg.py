@@ -3,7 +3,7 @@ import cv2 as cv
 
 
 class DynaSeg():
-    def __init__(self,iml, coco_demo, feature_params,disp_path,config,paraml,lk_params,mtx,dist,dilation):
+    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,mtx,dist,dilation):
         self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
@@ -59,7 +59,8 @@ class DynaSeg():
         paramr = self.paraml
         paramr['minDisparity'] = -self.paraml['numDisparities']
         right_matcher = cv.StereoSGBM_create(**paramr)
-
+        print(self.paraml)
+        print(np.sum(iml))
         size = (iml.shape[1], iml.shape[0])
         if down_scale == False:
             disparity_left = left_matcher.compute(iml, imr)
@@ -86,11 +87,10 @@ class DynaSeg():
         iml_, imr_ = preprocess(iml,imr)
         disp, _ = stereoMatchSGBM(iml_, imr_, False)
         print(np.sum(disp))
-        dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
-        print(self.disp_path + str(i).zfill(6) + '.npy')
-        print(np.sum(dis))
-        disp[disp == 0] = dis[disp == 0]
+        disp, _ = stereoMatchSGBM(iml_, imr_, False)
         print(np.sum(disp))
+        dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
+        disp[disp == 0] = dis[disp == 0]
         points = cv.reprojectImageTo3D(disp, self.Q)
         print(points[100,100])
         print(self.Q)
@@ -185,7 +185,8 @@ def stereoMatchSGBM(left_image, right_image, down_scale=False):
               'mode': cv.STEREO_SGBM_MODE_SGBM_3WAY
               }
 
-
+    print(paraml)
+    print(np.sum(left_image))
     left_matcher = cv.StereoSGBM_create(**paraml)
     paramr = paraml
     paramr['minDisparity'] = -paraml['numDisparities']

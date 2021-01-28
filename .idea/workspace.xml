@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-125">
-              <caret line="545" column="66" lean-forward="true" selection-start-line="544" selection-start-column="12" selection-end-line="545" selection-end-column="66" />
+            <state relative-caret-position="217">
+              <caret line="542" column="113" selection-start-line="542" selection-start-column="113" selection-end-line="542" selection-end-column="113" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,8 +40,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="86" column="52" lean-forward="true" selection-start-line="86" selection-start-column="52" selection-end-line="86" selection-end-column="52" />
+            <state relative-caret-position="228">
+              <caret line="92" column="40" selection-start-line="92" selection-start-column="40" selection-end-line="92" selection-end-column="40" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -108,12 +108,9 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>c, p1, old_gray</find>
-      <find>map1x</find>
       <find>rectifyImage</find>
       <find>config</find>
       <find>right_image</find>
-      <find>paraml</find>
       <find>init</find>
       <find>lk_params</find>
       <find>ast</find>
@@ -137,6 +134,9 @@
       <find>points</find>
       <find>init_kf</find>
       <find>preprocess</find>
+      <find>paraml</find>
+      <find>left_image</find>
+      <find>size</find>
       <find>stereoMatchSGBM</find>
     </findStrings>
     <replaceStrings>
@@ -166,8 +166,8 @@
         <option value="$PROJECT_DIR$/params.py" />
         <option value="$PROJECT_DIR$/script.py" />
         <option value="$PROJECT_DIR$/dataset.py" />
-        <option value="$PROJECT_DIR$/dysptam.py" />
         <option value="$PROJECT_DIR$/msptam.py" />
+        <option value="$PROJECT_DIR$/dysptam.py" />
         <option value="$PROJECT_DIR$/dynaseg.py" />
       </list>
     </option>
@@ -255,12 +255,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="65579000" />
+      <workItem from="1610734265042" duration="66202000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65579000" />
+    <option name="totallyTimeSpent" value="66202000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -388,8 +388,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-125">
-          <caret line="545" column="66" lean-forward="true" selection-start-line="544" selection-start-column="12" selection-end-line="545" selection-end-column="66" />
+        <state relative-caret-position="217">
+          <caret line="542" column="113" selection-start-line="542" selection-start-column="113" selection-end-line="542" selection-end-column="113" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -398,8 +398,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="86" column="52" lean-forward="true" selection-start-line="86" selection-start-column="52" selection-end-line="86" selection-end-column="52" />
+        <state relative-caret-position="228">
+          <caret line="92" column="40" selection-start-line="92" selection-start-column="40" selection-end-line="92" selection-end-column="40" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

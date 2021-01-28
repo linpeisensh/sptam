@@ -386,6 +386,10 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     b = cv.Rodrigues(tfm[:3, :3])
     R = b[0]
     t = tfm[:3, 3].reshape((3, 1))
+    print('ast', np.sum(ast))
+    print('R,t')
+    print(R)
+    print(t)
 
     P = p1[ast == 1]
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])

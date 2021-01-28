@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="537" column="62" selection-start-line="537" selection-start-column="62" selection-end-line="537" selection-end-column="62" />
+            <state relative-caret-position="306">
+              <caret line="391" column="12" lean-forward="true" selection-start-line="391" selection-start-column="12" selection-end-line="391" selection-end-column="12" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -28,7 +28,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
+            <state relative-caret-position="-256">
               <caret line="545" column="66" lean-forward="true" selection-start-line="544" selection-start-column="12" selection-end-line="545" selection-end-column="66" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -40,8 +40,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="148" column="33" selection-start-line="148" selection-start-column="33" selection-end-line="148" selection-end-column="33" />
+            <state relative-caret-position="133">
+              <caret line="98" column="37" lean-forward="true" selection-start-line="98" selection-start-column="8" selection-end-line="98" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -113,7 +113,6 @@
       <find>print</find>
       <find>cverror</find>
       <find>c, p1, old_gray</find>
-      <find>old_gray</find>
       <find>map1x</find>
       <find>rectifyImage</find>
       <find>config</find>
@@ -138,6 +137,7 @@
       <find>self.imr</find>
       <find>disp_path</find>
       <find>preprocess</find>
+      <find>old_gray</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -255,12 +255,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="62433000" />
+      <workItem from="1610734265042" duration="62928000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="62433000" />
+    <option name="totallyTimeSpent" value="62928000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -376,20 +376,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dynaseg.py">
+    <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="148" column="33" selection-start-line="148" selection-start-column="33" selection-end-line="148" selection-end-column="33" />
+        <state relative-caret-position="-256">
+          <caret line="545" column="66" lean-forward="true" selection-start-line="544" selection-start-column="12" selection-end-line="545" selection-end-column="66" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dysptam.py">
+    <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="545" column="66" lean-forward="true" selection-start-line="544" selection-start-column="12" selection-end-line="545" selection-end-column="66" />
+        <state relative-caret-position="133">
+          <caret line="98" column="37" lean-forward="true" selection-start-line="98" selection-start-column="8" selection-end-line="98" selection-end-column="37" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -398,8 +398,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="537" column="62" selection-start-line="537" selection-start-column="62" selection-end-line="537" selection-end-column="62" />
+        <state relative-caret-position="306">
+          <caret line="391" column="12" lean-forward="true" selection-start-line="391" selection-start-column="12" selection-end-line="391" selection-end-column="12" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

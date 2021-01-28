@@ -118,7 +118,11 @@ class DynaSeg():
         nl2m, res = self.get_instance_mask(iml)
         nl2m_dil = cv.dilate(nl2m, self.kernel)[:, :, None]
         merror = np.array(error)
-
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
         for i in range(len(error)):
             if imgpts[i][0] < 400:
                 merror[i] = max(merror[i] - 15 * 15, 0)
@@ -140,8 +144,9 @@ class DynaSeg():
         c = np.zeros_like(nl2m_dil)
         for i in nres:
             c[nl2m_dil == i] = 255
-
         self.p = p1
+        if nres:
+            print('mask: ', nres)
         return c
 
 def Rt_to_tran(tfm):

@@ -388,6 +388,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     t = tfm[:3, 3].reshape((3, 1))
 
     P = p1[ast == 1]
+    print(len(P))
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
     imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
     imgpts = imgpts.squeeze()
@@ -411,6 +412,8 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             merror[i] = max(merror[i] - 325, 0)
     ge = merror > np.median(error)
     nres = set()
+    print(res)
+    print(np.sum(ge))
     for o in range(1, res + 1):
         ao = 0
         co = 0
@@ -423,6 +426,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             if co / ao > 0.5:
                 nres.add(o)
     c = np.zeros_like(nl2m_dil)
+    print(nres)
     for i in nres:
         c[nl2m_dil == i] = 255
     return c, p1, old_gray
@@ -575,12 +579,6 @@ if __name__ == '__main__':
         featurel.extract()
         t.join()
 
-
-        if 0< i < 100:
-            cv.imwrite('./dyn/{}_mask.jpg'.format(i), c)
-            cv.imwrite('./dyn/{}_ori.jpg'.format(i), iml)
-        if i > 100:
-            break
 
         if i:
             lm = c

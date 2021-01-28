@@ -1,14 +1,13 @@
 import numpy as np
 import cv2 as cv
-import os
 
 
 class DynaSeg():
-    def __init__(self,iml, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation):
+    def __init__(self,iml, coco_demo, feature_params,disp_path,config,paraml,lk_params,mtx,dist,dilation):
         self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
-        self.dis_path = dis_path
+        self.disp_path = disp_path
         self.config = config
         self.Q = self.getRectifyTransform()
         self.paraml = paraml
@@ -21,26 +20,16 @@ class DynaSeg():
 
 
     def updata(self,iml, imr, i,k_frame):
-        self.iml = iml
-        self.imr = imr
-        self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
+        self.old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
         self.ast = np.ones((self.p.shape[0], 1))
-        self.points = self.get_points(i)
+        self.points = self.get_points(i,iml,imr)
         self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
 
 
-    def preprocess(self):
-        im1 = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
-        im2 = cv.cvtColor(self.imr, cv.COLOR_BGR2GRAY)
 
-        im1 = cv.equalizeHist(im1)
-        im2 = cv.equalizeHist(im2)
-
-        return im1, im2
-
-    def get_instance_mask(self):
-        image = self.iml.astype(np.uint8)
+    def get_instance_mask(self,iml):
+        image = iml.astype(np.uint8)
         prediction = self.coco.compute_prediction(image)
         top = self.coco.select_top_predictions(prediction)
         masks = top.get_field("mask").numpy()
@@ -65,26 +54,24 @@ class DynaSeg():
                                                          (self.w, self.h), R, T, alpha=0)
         return Q
 
-    def stereoMatchSGBM(self, down_scale=False):
-
+    def stereoMatchSGBM(self, iml, imr, down_scale=False):
         left_matcher = cv.StereoSGBM_create(**self.paraml)
         paramr = self.paraml
         paramr['minDisparity'] = -self.paraml['numDisparities']
         right_matcher = cv.StereoSGBM_create(**paramr)
 
-        # 计算视差图
-        size = (self.iml.shape[1], self.iml.shape[0])
+        size = (iml.shape[1], iml.shape[0])
         if down_scale == False:
-            disparity_left = left_matcher.compute(self.iml, self.imr)
-            disparity_right = right_matcher.compute(self.imr, self.iml)
+            disparity_left = left_matcher.compute(iml, imr)
+            disparity_right = right_matcher.compute(imr, iml)
 
         else:
-            self.iml_down = cv.pyrDown(self.iml)
-            self.imr_down = cv.pyrDown(self.imr)
-            factor = self.iml.shape[1] / self.iml_down.shape[1]
+            iml_down = cv.pyrDown(iml)
+            imr_down = cv.pyrDown(imr)
+            factor = iml.shape[1] / iml_down.shape[1]
 
-            disparity_left_half = left_matcher.compute(self.iml_down, self.imr_down)
-            disparity_right_half = right_matcher.compute(self.imr_down, self.iml_down)
+            disparity_left_half = left_matcher.compute(iml_down, imr_down)
+            disparity_right_half = right_matcher.compute(imr_down, iml_down)
             disparity_left = cv.resize(disparity_left_half, size, interpolation=cv.INTER_AREA)
             disparity_right = cv.resize(disparity_right_half, size, interpolation=cv.INTER_AREA)
             disparity_left = factor * disparity_left
@@ -95,8 +82,8 @@ class DynaSeg():
 
         return trueDisp_left, trueDisp_right
 
-    def get_points(self, i):
-        iml_, imr_ = self.preprocess(self.iml, self.imr)
+    def get_points(self, i, iml, imr):
+        iml_, imr_ = preprocess(iml,imr)
         disp, _ = self.stereoMatchSGBM(iml_, imr_, False)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
@@ -128,7 +115,7 @@ class DynaSeg():
         P = P[error < 1e6]
         imgpts = imgpts[error < 1e6].astype(np.float32)
         error = error[error < 1e6]
-        nl2m, res = self.get_instance_mask(self.iml, self.coco_demo)
+        nl2m, res = self.get_instance_mask(iml)
         nl2m_dil = cv.dilate(nl2m, self.kernel)[:, :, None]
         merror = np.array(error)
 
@@ -162,3 +149,13 @@ def Rt_to_tran(tfm):
   res[:3,:] = tfm[:3,:]
   res[3,3] = 1
   return res
+
+
+def preprocess(iml, imr):
+    im1 = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+    im2 = cv.cvtColor(imr, cv.COLOR_BGR2GRAY)
+
+    im1 = cv.equalizeHist(im1)
+    im2 = cv.equalizeHist(im2)
+
+    return im1, im2

@@ -534,8 +534,8 @@ if __name__ == '__main__':
     )
 
     for i in range(n):
-        iml = dataset.left[i]
-        imr = dataset.right[i]
+        iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
+        imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
         featurel = ImageFeature(iml, params)
         featurer = ImageFeature(imr, params)
         timestamp = dataset.timestamps[i]

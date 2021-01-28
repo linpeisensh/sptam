@@ -11,6 +11,15 @@ class DynaSeg():
         self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **feature_params)
 
+    def preprocess(self):
+        im1 = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
+        im2 = cv.cvtColor(self.imr, cv.COLOR_BGR2GRAY)
+
+        im1 = cv.equalizeHist(im1)
+        im2 = cv.equalizeHist(im2)
+
+        return im1, im2
+
     def get_instance_mask(self):
         image = self.iml.astype(np.uint8)
         prediction = self.coco.compute_prediction(image)

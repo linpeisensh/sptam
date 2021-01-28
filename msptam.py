@@ -402,7 +402,8 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
     nl2m, res = get_instance_mask(l2,coco_demo)
     nl2m_dil = cv.dilate(nl2m, kernel)[:, :, None]
     merror = np.array(error)
-
+    cverror = cv.norm(P, imgpts, cv.NORM_L2)/len(imgpts)
+    print(cverror)
     for i in range(len(error)):
         if imgpts[i][0] < 400:
             merror[i] = max(merror[i] - 15 * 15, 0)
@@ -422,6 +423,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             if co / ao > 0.5:
                 nres.add(o)
     c = np.zeros_like(nl2m_dil)
+    print(nres)
     for i in nres:
         c[nl2m_dil == i] = 255
     return c, p1, old_gray

@@ -86,16 +86,12 @@ class DynaSeg():
 
         P = p1[self.ast == 1]
         objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
-        print('P', np.sum(P))
-        print('obj', np.sum(objpa))
         imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
         imgpts = imgpts.squeeze()
         P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
         imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
         P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
         imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
-        print('P', np.sum(P))
-        print('imgpts', np.sum(imgpts))
         error = ((P - imgpts) ** 2).sum(-1)
         P = P[error < 1e6]
         imgpts = imgpts[error < 1e6].astype(np.float32)

@@ -83,7 +83,11 @@ class DynaSeg():
         return trueDisp_left, trueDisp_right
 
     def get_points(self, i, iml, imr):
+        print('iml', np.sum(iml))
+        print('imr', np.sum(imr))
         iml_, imr_ = preprocess(iml,imr)
+        print('iml_',np.sum(iml_))
+        print('imr_',np.sum(imr_))
         disp, _ = self.stereoMatchSGBM(iml_, imr_, False)
         print(np.sum(disp))
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
@@ -162,9 +166,9 @@ def Rt_to_tran(tfm):
   return res
 
 
-def preprocess(iml, imr):
-    im1 = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-    im2 = cv.cvtColor(imr, cv.COLOR_BGR2GRAY)
+def preprocess(img1, img2):
+    im1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+    im2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
 
     im1 = cv.equalizeHist(im1)
     im2 = cv.equalizeHist(im2)

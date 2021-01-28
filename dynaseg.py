@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-
+from copy import deepcopy as dp
 
 class DynaSeg():
     def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,mtx,dist,dilation):
@@ -22,6 +22,7 @@ class DynaSeg():
     def updata(self,iml, imr, i,k_frame):
         self.old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
+        self.p1 = dp(self.p)
         self.ast = np.ones((self.p.shape[0], 1))
         self.points = self.get_points(i,iml,imr)
         self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
@@ -74,7 +75,7 @@ class DynaSeg():
     def dyn_seg(self, frame, iml):
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         # calculate optical flow
-        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p, None, **self.lk_params)
+        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
         self.ast *= st
         self.old_gray = frame_gray.copy()
         tfm = Rt_to_tran(frame.transform_matrix)
@@ -128,7 +129,7 @@ class DynaSeg():
         c = np.zeros_like(nl2m_dil)
         for i in nres:
             c[nl2m_dil == i] = 255
-
+        self.p1 = p1
         if nres:
             print('mask: ', nres)
         return c

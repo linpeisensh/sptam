@@ -455,8 +455,8 @@ def get_instance_mask(image,coco_demo):
 
 params = ParamsKITTI()
 dataset = KITTIOdometry('/work/linp/dataset/kittic/sequences/08')
-
-disp_path = '/usr/stud/linp/storage/user/linp/disparity/08'
+disp_path = '/usr/stud/linp/storage/user/linp/disparity/08/'
+config_file = "/usr/stud/linp/storage/user/linp/maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
 
 feature_params = dict(maxCorners=1000,
                       qualityLevel=0.1,
@@ -492,7 +492,6 @@ otrajectory = []
 atrajectory = []
 n = len(dataset)
 
-config_file = "/usr/stud/linp/storage/user/linp/maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
 # "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
 
 # update the config options with the config file

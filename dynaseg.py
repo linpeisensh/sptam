@@ -96,16 +96,11 @@ class DynaSeg():
         p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p, None, **self.lk_params)
         self.ast *= st
         self.old_gray = frame_gray.copy()
-        print('ast',np.sum(self.ast))
         tfm = Rt_to_tran(frame.transform_matrix)
         tfm = self.otfm.dot(tfm)
         b = cv.Rodrigues(tfm[:3, :3])
         R = b[0]
         t = tfm[:3, 3].reshape((3, 1))
-
-        print('R,t')
-        print(R)
-        print(t)
 
         P = p1[self.ast == 1]
         objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
@@ -148,7 +143,7 @@ class DynaSeg():
         c = np.zeros_like(nl2m_dil)
         for i in nres:
             c[nl2m_dil == i] = 255
-        self.p = p1
+
         if nres:
             print('mask: ', nres)
         return c

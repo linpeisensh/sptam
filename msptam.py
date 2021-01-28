@@ -426,7 +426,8 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
             if co / ao > 0.5:
                 nres.add(o)
     c = np.zeros_like(nl2m_dil)
-    print(nres)
+    if nres:
+        print('mask: ',nres)
     for i in nres:
         c[nl2m_dil == i] = 255
     return c, p1, old_gray
@@ -547,7 +548,7 @@ if __name__ == '__main__':
         t.join()
 
 
-        print('original {}. frame'.format(i))
+        print('{}. frame'.format(i))
         frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 
         if not sptam0.is_initialized():
@@ -594,7 +595,6 @@ if __name__ == '__main__':
             featurel.unmatched = featurel.unmatched[flm]
             featurer.unmatched = featurer.unmatched[frm]
 
-        print('after mask {}. frame'.format(i))
         frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 
         if not sptam1.is_initialized():

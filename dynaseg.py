@@ -54,38 +54,20 @@ class DynaSeg():
                                                          (self.w, self.h), R, T, alpha=0)
         return Q
 
-    def stereoMatchSGBM(self, iml, imr, down_scale=False):
+    def stereoMatchSGBM(self, iml, imr):
         left_matcher = cv.StereoSGBM_create(**self.paraml)
-        paramr = self.paraml
-        paramr['minDisparity'] = -self.paraml['numDisparities']
-        right_matcher = cv.StereoSGBM_create(**paramr)
         print(self.paraml)
         print(np.sum(iml))
-        size = (iml.shape[1], iml.shape[0])
-        if down_scale == False:
-            disparity_left = left_matcher.compute(iml, imr)
-            disparity_right = right_matcher.compute(imr, iml)
 
-        else:
-            iml_down = cv.pyrDown(iml)
-            imr_down = cv.pyrDown(imr)
-            factor = iml.shape[1] / iml_down.shape[1]
-
-            disparity_left_half = left_matcher.compute(iml_down, imr_down)
-            disparity_right_half = right_matcher.compute(imr_down, iml_down)
-            disparity_left = cv.resize(disparity_left_half, size, interpolation=cv.INTER_AREA)
-            disparity_right = cv.resize(disparity_right_half, size, interpolation=cv.INTER_AREA)
-            disparity_left = factor * disparity_left
-            disparity_right = factor * disparity_right
+        disparity_left = left_matcher.compute(iml, imr)
 
         trueDisp_left = disparity_left.astype(np.float32) / 16.
-        trueDisp_right = disparity_right.astype(np.float32) / 16.
 
-        return trueDisp_left, trueDisp_right
+        return trueDisp_left
 
     def get_points(self, i, iml, imr):
         iml_, imr_ = preprocess(iml,imr)
-        disp, _ = stereoMatchSGBM(iml_, imr_, False)
+        disp = self.stereoMatchSGBM(iml_, imr_, False)
         print(np.sum(disp))
         disp, _ = stereoMatchSGBM(iml_, imr_, False)
         print(np.sum(disp))

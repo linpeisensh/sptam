@@ -56,8 +56,6 @@ class DynaSeg():
 
     def stereoMatchSGBM(self, iml, imr):
         left_matcher = cv.StereoSGBM_create(**self.paraml)
-        print(self.paraml)
-        print(np.sum(iml))
 
         disparity_left = left_matcher.compute(iml, imr)
 
@@ -70,9 +68,7 @@ class DynaSeg():
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
-        print(np.sum(disp))
         points = cv.reprojectImageTo3D(disp, self.Q)
-        print(np.sum(points))
         return points
 
     def dyn_seg(self, frame, iml):
@@ -88,14 +84,17 @@ class DynaSeg():
         t = tfm[:3, 3].reshape((3, 1))
 
         P = p1[self.ast == 1]
-
         objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
+        print('P', np.sum(P))
+        print('obj', np.sum(objpa))
         imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
         imgpts = imgpts.squeeze()
         P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
         imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
         P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
         imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        print('P', np.sum(P))
+        print('imgpts', np.sum(imgpts))
         error = ((P - imgpts) ** 2).sum(-1)
         P = P[error < 1e6]
         imgpts = imgpts[error < 1e6].astype(np.float32)

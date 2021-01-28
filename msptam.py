@@ -365,9 +365,7 @@ def init_kf(i, config,iml,imr,disp_path,feature_params):
     disp, _ = stereoMatchSGBM(iml_, imr_, False)
     dis = np.load(disp_path + str(i).zfill(6) + '.npy')
     disp[disp == 0] = dis[disp == 0]
-    print(np.sum(disp))
     points = cv.reprojectImageTo3D(disp, Q)
-    print(np.sum(points))
     old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
     p = cv.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
     return points, old_gray, p
@@ -389,13 +387,16 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
 
     P = p1[ast == 1]
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
-
+    print('P',np.sum(P))
+    print('obj',np.sum(objpa))
     imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
     imgpts = imgpts.squeeze()
     P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
     imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
     P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < width) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < height)]
     imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < width) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < height)]
+    print('P', np.sum(P))
+    print('imgpts', np.sum(imgpts))
     error = ((P - imgpts) ** 2).sum(-1)
     P = P[error < 1e6]
     imgpts = imgpts[error < 1e6].astype(np.float32)

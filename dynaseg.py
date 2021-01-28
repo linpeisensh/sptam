@@ -67,15 +67,12 @@ class DynaSeg():
 
     def get_points(self, i, iml, imr):
         iml_, imr_ = preprocess(iml,imr)
-        disp = self.stereoMatchSGBM(iml_, imr_, False)
-        print(np.sum(disp))
-        disp, _ = stereoMatchSGBM(iml_, imr_, False)
-        print(np.sum(disp))
+        disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
+        print(np.sum(disp))
         points = cv.reprojectImageTo3D(disp, self.Q)
-        print(points[100,100])
-        print(self.Q)
+        print(np.sum(points))
         return points
 
     def dyn_seg(self, frame, iml):
@@ -152,48 +149,3 @@ def preprocess(img1, img2):
     im2 = cv.equalizeHist(im2)
 
     return im1, im2
-
-def stereoMatchSGBM(left_image, right_image, down_scale=False):
-    paraml = {'minDisparity': 1,
-              'numDisparities': 64,
-              'blockSize': 10,
-              'P1': 4 * 3 * 9 ** 2,
-              'P2': 4 * 3 * 9 ** 2,
-              'disp12MaxDiff': 1,
-              'preFilterCap': 10,
-              'uniquenessRatio': 15,
-              'speckleWindowSize': 100,
-              'speckleRange': 1,
-              'mode': cv.STEREO_SGBM_MODE_SGBM_3WAY
-              }
-
-    print(paraml)
-    print(np.sum(left_image))
-    left_matcher = cv.StereoSGBM_create(**paraml)
-    paramr = paraml
-    paramr['minDisparity'] = -paraml['numDisparities']
-    right_matcher = cv.StereoSGBM_create(**paramr)
-
-    # 计算视差图
-    size = (left_image.shape[1], left_image.shape[0])
-    if down_scale == False:
-        disparity_left = left_matcher.compute(left_image, right_image)
-        disparity_right = right_matcher.compute(right_image, left_image)
-
-    else:
-        left_image_down = cv.pyrDown(left_image)
-        right_image_down = cv.pyrDown(right_image)
-        factor = left_image.shape[1] / left_image_down.shape[1]
-
-        disparity_left_half = left_matcher.compute(left_image_down, right_image_down)
-        disparity_right_half = right_matcher.compute(right_image_down, left_image_down)
-        disparity_left = cv.resize(disparity_left_half, size, interpolation=cv.INTER_AREA)
-        disparity_right = cv.resize(disparity_right_half, size, interpolation=cv.INTER_AREA)
-        disparity_left = factor * disparity_left
-        disparity_right = factor * disparity_right
-
-
-    trueDisp_left = disparity_left.astype(np.float32) / 16.
-    trueDisp_right = disparity_right.astype(np.float32) / 16.
-
-    return trueDisp_left, trueDisp_right

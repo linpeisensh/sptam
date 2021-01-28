@@ -389,6 +389,8 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
 
     P = p1[ast == 1]
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
+    print('p', p[ast == 1].squeeze()[0])
+    print('obj', objpa[0])
     imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
     imgpts = imgpts.squeeze()
     P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]

@@ -103,7 +103,10 @@ class DynaSeg():
         t = tfm[:3, 3].reshape((3, 1))
 
         P = p1[self.ast == 1]
+
         objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
+        print('p', self.p[self.ast == 1].squeeze()[0])
+        print('obj',objpa[0])
         imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
         imgpts = imgpts.squeeze()
         P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]

@@ -4,8 +4,8 @@ import os
 
 
 class DynaSeg():
-    def __init__(self,data_path, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation):
-        self.data_path = data_path
+    def __init__(self,iml, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation):
+        self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
         self.dis_path = dis_path
@@ -22,8 +22,7 @@ class DynaSeg():
 
     def updata(self,iml, imr, i,k_frame):
         self.iml = iml
-        self.imr = cv.imread(self.right[i], cv.IMREAD_UNCHANGED)
-        self.h, self.w = self.iml.shape[:2]
+        self.imr = imr
         self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
         self.ast = np.ones((self.p.shape[0], 1))

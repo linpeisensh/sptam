@@ -511,6 +511,7 @@ if __name__ == '__main__':
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
 
+
     config_file = args.cocopath
     # "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
 
@@ -537,88 +538,92 @@ if __name__ == '__main__':
               'mode': cv.STEREO_SGBM_MODE_SGBM_3WAY
               }
 
-    dseg = DynaSeg(args.path,coco_demo,feature_params,disp_path,config,paraml,lk_params,mtx,dist,dilation)
-    for i in range(n):
-        iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
-        imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
-        featurel = ImageFeature(iml, params)
-        featurer = ImageFeature(imr, params)
-        timestamp = dataset.timestamps[i]
+    if n:
+        iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
+        dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
+        for i in range(n):
+            iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
+            imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
+            featurel = ImageFeature(iml, params)
+            featurer = ImageFeature(imr, params)
+            timestamp = dataset.timestamps[i]
 
-        time_start = time.time()
+            time_start = time.time()
 
-        t = Thread(target=featurer.extract)
-        t.start()
-        featurel.extract()
-        t.join()
+            t = Thread(target=featurer.extract)
+            t.start()
+            featurel.extract()
+            t.join()
 
 
-        print('{}. frame'.format(i))
-        frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+            print('{}. frame'.format(i))
+            frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
 
-        if not sptam0.is_initialized():
-            sptam0.initialize(frame)
-        else:
-            sptam0.track(frame)
+            if not sptam0.is_initialized():
+                sptam0.initialize(frame)
+            else:
+                sptam0.track(frame)
 
-        R = frame.pose.orientation().matrix()
-        t = frame.pose.position()
-        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-        otrajectory.append((cur_tra))
-        if i % 5 == 0:
-            if i:
+            R = frame.pose.orientation().matrix()
+            t = frame.pose.position()
+            cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+            otrajectory.append((cur_tra))
+            if i % 5 == 0:
+                if i:
+                    c = dseg.dyn_seg(frame,iml)
+                dseg.updata(iml,imr,i,frame)
+            else:
                 c = dseg.dyn_seg(frame,iml)
-            dseg.updata(iml,imr,i,frame)
-        else:
-            c = dseg.dyn_seg(frame,iml)
 
 
-        featurel = ImageFeature(iml, params)
-        featurer = ImageFeature(imr, params)
+            featurel = ImageFeature(iml, params)
+            featurer = ImageFeature(imr, params)
 
-        t = Thread(target=featurer.extract)
-        t.start()
-        featurel.extract()
-        t.join()
-
-
-        if i:
-            lm = c
-            rm = c
-            ofl = np.array(featurel.keypoints)
-            ofr = np.array(featurer.keypoints)
-            flm = maskofkp(ofl, lm)
-            frm = maskofkp(ofr, rm)
-            featurel.keypoints = list(ofl[flm])
-            featurer.keypoints = list(ofr[frm])
-            featurel.descriptors = featurel.descriptors[flm]
-            featurer.descriptors = featurer.descriptors[frm]
-            featurel.unmatched = featurel.unmatched[flm]
-            featurer.unmatched = featurer.unmatched[frm]
-
-        frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
-
-        if not sptam1.is_initialized():
-            sptam1.initialize(frame)
-        else:
-            sptam1.track(frame)
+            t = Thread(target=featurer.extract)
+            t.start()
+            featurel.extract()
+            t.join()
 
 
-        R = frame.pose.orientation().matrix()
-        t = frame.pose.position()
-        cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-        atrajectory.append((cur_tra))
+            if i:
+                lm = c
+                rm = c
+                ofl = np.array(featurel.keypoints)
+                ofr = np.array(featurer.keypoints)
+                flm = maskofkp(ofl, lm)
+                frm = maskofkp(ofr, rm)
+                featurel.keypoints = list(ofl[flm])
+                featurer.keypoints = list(ofr[frm])
+                featurel.descriptors = featurel.descriptors[flm]
+                featurer.descriptors = featurer.descriptors[frm]
+                featurel.unmatched = featurel.unmatched[flm]
+                featurer.unmatched = featurer.unmatched[frm]
+
+            frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+
+            if not sptam1.is_initialized():
+                sptam1.initialize(frame)
+            else:
+                sptam1.track(frame)
 
 
+            R = frame.pose.orientation().matrix()
+            t = frame.pose.position()
+            cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+            atrajectory.append((cur_tra))
+
+
+            if visualize:
+                viewer.update()
+
+
+        # print('average time', np.mean(durations))
+        save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
+        save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
+        print('save a{}.txt successfully'.format(args.path[-2:]))
+        sptam0.stop()
+        sptam1.stop()
         if visualize:
-            viewer.update()
-
-
-    # print('average time', np.mean(durations))
-    save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
-    save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
-    print('save a{}.txt successfully'.format(args.path[-2:]))
-    sptam0.stop()
-    sptam1.stop()
-    if visualize:
-        viewer.stop()
+            viewer.stop()
+    else:
+        print('path is wrong')

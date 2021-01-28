@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3743">
-              <caret line="410" column="30" lean-forward="true" selection-start-line="410" selection-start-column="30" selection-end-line="410" selection-end-column="30" />
+            <state relative-caret-position="179">
+              <caret line="612" column="27" lean-forward="true" selection-start-line="612" selection-start-column="27" selection-end-line="612" selection-end-column="27" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -116,7 +116,6 @@
       <find>filter</find>
       <find>viewer</find>
       <find>frame.pose</find>
-      <find>print</find>
       <find>q_camera</find>
       <find>ParamsKITTI</find>
       <find>update_pose</find>
@@ -138,6 +137,7 @@
       <find>config</find>
       <find>cocopath</find>
       <find>disparity</find>
+      <find>print</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -239,12 +239,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="51950000" />
+      <workItem from="1610734265042" duration="52748000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51950000" />
+    <option name="totallyTimeSpent" value="52748000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -346,8 +346,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3743">
-          <caret line="410" column="30" lean-forward="true" selection-start-line="410" selection-start-column="30" selection-end-line="410" selection-end-column="30" />
+        <state relative-caret-position="179">
+          <caret line="612" column="27" lean-forward="true" selection-start-line="612" selection-start-column="27" selection-end-line="612" selection-end-column="27" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

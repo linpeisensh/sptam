@@ -88,6 +88,8 @@ class DynaSeg():
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
         points = cv.reprojectImageTo3D(disp, self.Q)
+        print(points[100,100])
+        print(self.Q)
         return points
 
     def dyn_seg(self, frame, iml):

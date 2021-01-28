@@ -367,7 +367,8 @@ def init_kf(i, config,iml,imr,disp_path,feature_params):
     dis = np.load(disp_path+ str(i).zfill(6) + '.npy')
     disp[disp == 0] = dis[disp == 0]
     points = cv.reprojectImageTo3D(disp, Q)
-
+    print(points_3d[100, 100])
+    print(Q)
     old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
     p = cv.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
     return points, old_gray, p
@@ -389,8 +390,7 @@ def dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,l2,lk_params,mtx,dist,kern
 
     P = p1[ast == 1]
     objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
-    print('p', p[ast == 1].squeeze()[0])
-    print('obj', objpa[0])
+
     imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
     imgpts = imgpts.squeeze()
     P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]

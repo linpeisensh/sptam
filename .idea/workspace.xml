@@ -17,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/sptam.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="722">
-              <caret line="292" column="21" lean-forward="true" selection-start-line="292" selection-start-column="21" selection-end-line="292" selection-end-column="21" />
+              <caret line="292" column="21" selection-start-line="292" selection-start-column="21" selection-end-line="292" selection-end-column="21" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -25,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1072">
-              <caret line="596" lean-forward="true" selection-start-line="596" selection-end-line="596" />
+            <state relative-caret-position="228">
+              <caret line="569" column="68" lean-forward="true" selection-start-line="569" selection-start-column="19" selection-end-line="569" selection-end-column="68" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,8 +40,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/script.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="15" column="54" lean-forward="true" selection-start-line="15" selection-start-column="54" selection-end-line="15" selection-end-column="54" />
+            <state relative-caret-position="1178">
+              <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-start-column="16" selection-end-line="152" selection-end-column="16" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -49,11 +49,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/params.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="94" column="42" selection-start-line="94" selection-start-column="40" selection-end-line="94" selection-end-column="42" />
+            <state relative-caret-position="190">
+              <caret line="85" lean-forward="true" selection-start-line="85" selection-end-line="85" />
             </state>
           </provider>
         </entry>
@@ -62,7 +62,7 @@
         <entry file="file://$PROJECT_DIR$/feature.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="245">
-              <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
+              <caret line="30" selection-start-line="30" selection-end-line="30" />
             </state>
           </provider>
         </entry>
@@ -108,40 +108,50 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>idx</find>
-      <find>id</find>
-      <find>stereoframe</find>
-      <find>update</find>
-      <find>vi</find>
-      <find>filter</find>
-      <find>viewer</find>
-      <find>frame.pose</find>
-      <find>q_camera</find>
-      <find>ParamsKITTI</find>
-      <find>update_pose</find>
       <find>detector</find>
       <find>Camera</find>
       <find>params</find>
       <find>dataset</find>
       <find>init_kf</find>
       <find>reference</find>
-      <find>cverror</find>
       <find>get_instance_mask</find>
-      <find>coco_demo</find>
       <find>dyn_seg</find>
       <find>getRectifyTransform</find>
-      <find>init</find>
       <find>preprocess</find>
-      <find>old_gray</find>
       <find>Parameter</find>
-      <find>config</find>
       <find>cocopath</find>
       <find>disparity</find>
       <find>print</find>
+      <find>cverror</find>
+      <find>c, p1, old_gray</find>
+      <find>old_gray</find>
+      <find>map1x</find>
+      <find>rectifyImage</find>
+      <find>config</find>
+      <find>right_image</find>
+      <find>paraml</find>
+      <find>init</find>
+      <find>lk_params</find>
+      <find>ast</find>
+      <find>l2</find>
+      <find>mtx</find>
+      <find>coco_demo</find>
+      <find>otfm</find>
+      <find>kernel</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
+      <replace>self.config</replace>
+      <replace>self.imr</replace>
+      <replace>self.paraml</replace>
+      <replace>self.ast</replace>
+      <replace>self.iml</replace>
+      <replace>self.points</replace>
+      <replace>self.mtx</replace>
+      <replace>self.w</replace>
+      <replace>self.h</replace>
       <replace>self.old_gray</replace>
+      <replace>self.coco_demo</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -152,15 +162,17 @@
       <list>
         <option value="$PROJECT_DIR$/sptam.py" />
         <option value="$PROJECT_DIR$/dataset.py" />
-        <option value="$PROJECT_DIR$/script.py" />
         <option value="$PROJECT_DIR$/msptam.py" />
+        <option value="$PROJECT_DIR$/script.py" />
+        <option value="$PROJECT_DIR$/params.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-99" />
+    <option name="x" value="628" />
+    <option name="y" value="1" />
     <option name="width" value="762" />
-    <option name="height" value="710" />
+    <option name="height" value="758" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -239,12 +251,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="53284000" />
+      <workItem from="1610734265042" duration="57847000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53284000" />
+    <option name="totallyTimeSpent" value="57847000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -306,7 +318,7 @@
     <entry file="file://$PROJECT_DIR$/feature.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="245">
-          <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
+          <caret line="30" selection-start-line="30" selection-end-line="30" />
         </state>
       </provider>
     </entry>
@@ -317,20 +329,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/script.py">
+    <entry file="file://$PROJECT_DIR$/sptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="15" column="54" lean-forward="true" selection-start-line="15" selection-start-column="54" selection-end-line="15" selection-end-column="54" />
+        <state relative-caret-position="722">
+          <caret line="292" column="21" selection-start-line="292" selection-start-column="21" selection-end-line="292" selection-end-column="21" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sptam.py">
+    <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="722">
-          <caret line="292" column="21" lean-forward="true" selection-start-line="292" selection-start-column="21" selection-end-line="292" selection-end-column="21" />
+        <state relative-caret-position="228">
+          <caret line="569" column="68" lean-forward="true" selection-start-line="569" selection-start-column="19" selection-end-line="569" selection-end-column="68" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/script.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1178">
+          <caret line="152" column="16" lean-forward="true" selection-start-line="152" selection-start-column="16" selection-end-line="152" selection-end-column="16" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -339,18 +361,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/params.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="94" column="42" selection-start-line="94" selection-start-column="40" selection-end-line="94" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/msptam.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1072">
-          <caret line="596" lean-forward="true" selection-start-line="596" selection-end-line="596" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="190">
+          <caret line="85" lean-forward="true" selection-start-line="85" selection-end-line="85" />
         </state>
       </provider>
     </entry>

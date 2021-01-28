@@ -1,15 +1,29 @@
 import numpy as np
 import cv2 as cv
+import os
 
 
 class DynaSeg():
-    def __init__(self,iml,imr,coco_demo, feature_params):
-        self.iml = iml
-        self.imr = imr
+    def __init__(self,i,data_path, coco_demo, feature_params,dis_path,config,paraml,lk_params,mtx,dist,dilation,k_frame):
+        self.i = i
+        self.iml = cv.imread(os.path.join(data_path, 'image_2', "{0:06}.png".format(i)), cv.IMREAD_UNCHANGED)
+        self.imr = cv.imread(os.path.join(data_path, 'image_3', "{0:06}.png".format(i)), cv.IMREAD_UNCHANGED)
         self.coco = coco_demo
         self.h, self.w = self.iml.shape[:2]
         self.old_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **feature_params)
+        self.dis_path = dis_path
+        self.config = config
+        self.Q = self.getRectifyTransform()
+        self.paraml = paraml
+        self.points = self.get_points()
+        self.lk_params = lk_params
+        self.ast = np.ones((self.p.shape[0], 1))
+        self.mtx = mtx
+        self.dist = dist
+        self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
+        self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
+
 
     def preprocess(self):
         im1 = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
@@ -34,33 +48,83 @@ class DynaSeg():
             rmask[mask] = i + 1
         return rmask, i + 1
 
-    def dyn_seg(self):
+    def getRectifyTransform(self):
+        left_K = self.config.cam_matrix_left
+        right_K = self.config.cam_matrix_right
+        left_distortion = self.config.distortion_l
+        right_distortion = self.config.distortion_r
+        R = self.config.R
+        T = self.config.T
+
+        R1, R2, P1, P2, Q, roi1, roi2 = cv.stereoRectify(left_K, left_distortion, right_K, right_distortion,
+                                                         (self.w, self.h), R, T, alpha=0)
+        return Q
+
+    def stereoMatchSGBM(self, down_scale=False):
+
+        left_matcher = cv.StereoSGBM_create(**self.paraml)
+        paramr = self.paraml
+        paramr['minDisparity'] = -self.paraml['numDisparities']
+        right_matcher = cv.StereoSGBM_create(**paramr)
+
+        # 计算视差图
+        size = (self.iml.shape[1], self.iml.shape[0])
+        if down_scale == False:
+            disparity_left = left_matcher.compute(self.iml, self.imr)
+            disparity_right = right_matcher.compute(self.imr, self.iml)
+
+        else:
+            self.iml_down = cv.pyrDown(self.iml)
+            self.imr_down = cv.pyrDown(self.imr)
+            factor = self.iml.shape[1] / self.iml_down.shape[1]
+
+            disparity_left_half = left_matcher.compute(self.iml_down, self.imr_down)
+            disparity_right_half = right_matcher.compute(self.imr_down, self.iml_down)
+            disparity_left = cv.resize(disparity_left_half, size, interpolation=cv.INTER_AREA)
+            disparity_right = cv.resize(disparity_right_half, size, interpolation=cv.INTER_AREA)
+            disparity_left = factor * disparity_left
+            disparity_right = factor * disparity_right
+
+        trueDisp_left = disparity_left.astype(np.float32) / 16.
+        trueDisp_right = disparity_right.astype(np.float32) / 16.
+
+        return trueDisp_left, trueDisp_right
+
+    def get_points(self):
+        iml_, imr_ = self.preprocess(self.iml, self.imr)
+        disp, _ = self.stereoMatchSGBM(iml_, imr_, False)
+        dis = np.load(self.disp_path + str(self.i).zfill(6) + '.npy')
+        disp[disp == 0] = dis[disp == 0]
+        points = cv.reprojectImageTo3D(disp, self.Q)
+        return points
+
+    def dyn_seg(self,frame):
         frame_gray = cv.cvtColor(self.iml, cv.COLOR_BGR2GRAY)
         # calculate optical flow
-        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, p1, None, **lk_params)
-        ast *= st
+        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p, None, **self.lk_params)
+        self.ast *= st
         self.old_gray = frame_gray.copy()
 
         tfm = Rt_to_tran(frame.transform_matrix)
-        tfm = otfm.dot(tfm)
+        tfm = self.otfm.dot(tfm)
         b = cv.Rodrigues(tfm[:3, :3])
         R = b[0]
         t = tfm[:3, 3].reshape((3, 1))
 
-        P = p1[ast == 1]
-        objpa = np.array([points_3d[int(y), int(x)] for x, y in p[ast == 1].squeeze()])
-        imgpts, jac = cv.projectPoints(objpa, R, -t, mtx, dist)
+        P = p1[self.ast == 1]
+        objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
+        imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
         imgpts = imgpts.squeeze()
         P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
         imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
-        P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < width) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < height)]
-        imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < width) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < height)]
+        P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
         error = ((P - imgpts) ** 2).sum(-1)
         P = P[error < 1e6]
         imgpts = imgpts[error < 1e6].astype(np.float32)
         error = error[error < 1e6]
-        nl2m, res = self.get_instance_mask(l2, coco_demo)
-        nl2m_dil = cv.dilate(nl2m, kernel)[:, :, None]
+        nl2m, res = self.get_instance_mask(self.iml, self.coco_demo)
+        nl2m_dil = cv.dilate(nl2m, self.kernel)[:, :, None]
         merror = np.array(error)
 
         for i in range(len(error)):
@@ -74,7 +138,7 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(error)):
-                if nl2m_dil[min(round(P[i][1]), height - 1), min(round(P[i][0]), width - 1)] == o:
+                if nl2m_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)] == o:
                     ao += 1
                     if ge[i]:
                         co += 1
@@ -84,7 +148,9 @@ class DynaSeg():
         c = np.zeros_like(nl2m_dil)
         for i in nres:
             c[nl2m_dil == i] = 255
-        return c, p1
+
+        self.p = p1
+        return c
 
 def Rt_to_tran(tfm):
   res = np.zeros((4,4))

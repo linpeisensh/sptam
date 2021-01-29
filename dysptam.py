@@ -63,7 +63,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.dataset.lower() == 'kitti':
-        params = ParamsKITTI('ORB-ORB')
+        params = ParamsKITTI()
         dataset = KITTIOdometry(args.path)
     elif args.dataset.lower() == 'euroc':
         params = ParamsEuroc()

@@ -217,7 +217,6 @@ if __name__ == '__main__':
                 viewer.update()
 
 
-        # print('average time', np.mean(durations))
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))

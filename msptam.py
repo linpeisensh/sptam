@@ -92,6 +92,7 @@ class SPTAM(object):
         self.current = None  # current frame
         self.status = defaultdict(bool)
 
+
     def stop(self):
         self.mapping.stop()
         if self.loop_closing is not None:

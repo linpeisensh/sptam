@@ -270,6 +270,7 @@ if __name__ == '__main__':
         print('save a{}.txt successfully'.format(args.path[-2:]))
         sptam0.stop()
         sptam1.stop()
+        sptam2.stop()
         if visualize:
             viewer.stop()
     else:

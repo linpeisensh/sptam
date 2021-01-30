@@ -101,6 +101,11 @@ class DynaSeg():
         imgpts = imgpts[error < 1e6].astype(np.float32)
         error = error[error < 1e6]
 
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
         self.p1 = p1
         return error, imgpts, P
 
@@ -138,11 +143,6 @@ class DynaSeg():
                 if co / ao > 0.5:
                     c[mask_dil.astype(np.bool)] = 255
         self.old_gray = frame_gray.copy()
-        if len(imgpts):
-            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
-        else:
-            cverror = float('inf')
-        print(cverror)
         return c
 
     def dyn_seg_rec(self, frame, iml):
@@ -209,11 +209,6 @@ class DynaSeg():
                 c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
 
-        if len(imgpts):
-            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
-        else:
-            cverror = float('inf')
-        print(cverror)
         return cv.erode(c,self.e_kernel)
 
 def Rt_to_tran(tfm):

@@ -330,6 +330,7 @@ class DynaSeg():
             ci = self.track_obj(mask)
             if ci == nobj:
                 res += [True]
+                nobj += 1
             else:
                 res[ci] = True
             mask = mask.astype(np.float64)

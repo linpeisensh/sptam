@@ -2,9 +2,8 @@ import numpy as np
 import cv2 as cv
 from copy import deepcopy as dp
 
-
 class DynaSeg():
-    def __init__(self, iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation):
+    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,mtx,dist,dilation):
         self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
@@ -18,18 +17,22 @@ class DynaSeg():
         self.mtx = mtx
         self.dist = dist
         self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
+        self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
         self.IOU_thd = 0.5
         self.dyn_thd = 0.8
 
-    def updata(self, iml, imr, i, k_frame):
+
+    def updata(self,iml, imr, i,k_frame):
         self.old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
         self.p1 = dp(self.p)
         self.ast = np.ones((self.p.shape[0], 1))
-        self.points = self.get_points(i, iml, imr)
+        self.points = self.get_points(i,iml,imr)
         self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
+
+
 
     def getRectifyTransform(self):
         left_K = self.config.cam_matrix_left
@@ -53,7 +56,7 @@ class DynaSeg():
         return trueDisp_left
 
     def get_points(self, i, iml, imr):
-        iml_, imr_ = preprocess(iml, imr)
+        iml_, imr_ = preprocess(iml,imr)
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
@@ -98,11 +101,6 @@ class DynaSeg():
         imgpts = imgpts[error < 1e6].astype(np.float32)
         error = error[error < 1e6]
 
-        if len(imgpts):
-            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
-        else:
-            cverror = float('inf')
-        print(cverror)
         self.p1 = p1
         return error, imgpts, P
 
@@ -140,6 +138,11 @@ class DynaSeg():
                 if co / ao > 0.5:
                     c[mask_dil.astype(np.bool)] = 255
         self.old_gray = frame_gray.copy()
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
         return c
 
     def dyn_seg_rec(self, frame, iml):
@@ -167,53 +170,57 @@ class DynaSeg():
         masks = top.get_field("mask").numpy()
 
         nobj = len(self.obj)
+        res = [True] * nobj
         for i in range(nobj):
-            cm = np.where(self.obj[i][0] == True)
-            cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
-            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
-            for nmp in nmps:
-                x, y = round(nmp[1]), round(nmp[0])
-                if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x,y] = True
-            self.obj[i][0] = nm
-
-        res = [False] * nobj
+          cm = np.where(self.obj[i][0]==True)
+          cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+          nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+          nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
+          for nmp in nmps:
+            x, y = round(nmp[1]), round(nmp[0])
+            if 0 <= x < self.h and 0 <= y < self.w:
+              nm[x,y] = True
+          self.obj[i][0] = nm
+          if np.sum(nm) < 225:
+            res[i] = False
+        self.obj = np.array(self.obj,dtype=object)
+        self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))
         n = len(masks)
         for i in range(n):
             mask = masks[i].squeeze()
             ci = self.track_obj(mask)
-            if ci < nobj:
-                res[ci] = True
-            else:
-                res += [True]
-                nobj += 1
             mask = mask.astype(np.float64)
-            mask_dil = cv.dilate(mask, self.kernel)
+            mask_dil =  cv.dilate(mask, self.kernel)
+            self.obj[ci][0] = mask_dil.astype(np.bool)
             ao = 0
             co = 0
             for i in range(len(error)):
-                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+              x, y = round(P[i][1]), round(P[i][0])
+              if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd:
-                c[mask_dil.astype(np.bool)] = 255
-        self.obj = np.array(self.obj,dtype=object)
-        self.obj = list(self.obj[res])
+        for obj in self.obj:
+            if obj[2] / obj[1]  >= self.dyn_thd or obj[2]>3:
+                c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
-        return c
 
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
+        return cv.erode(c,self.e_kernel)
 
 def Rt_to_tran(tfm):
-    res = np.zeros((4, 4))
-    res[:3, :] = tfm[:3, :]
-    res[3, 3] = 1
-    return res
+  res = np.zeros((4,4))
+  res[:3,:] = tfm[:3,:]
+  res[3,3] = 1
+  return res
 
 
 def preprocess(img1, img2):
@@ -225,11 +232,10 @@ def preprocess(img1, img2):
 
     return im1, im2
 
-
-def get_IOU(m1, m2):
-    I = np.sum(np.logical_and(m1, m2))
-    U = np.sum(np.logical_or(m1, m2))
-    if U:
-        return I / U
-    else:
-        return 0
+def get_IOU(m1,m2):
+  I = np.sum(np.logical_and(m1,m2))
+  U = np.sum(np.logical_or(m1,m2))
+  if U:
+    return I/U
+  else:
+    return 0

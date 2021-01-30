@@ -139,6 +139,7 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     c[mask_dil.astype(np.bool)] = 255
+        self.old_gray = frame_gray.copy()
         return c
 
     def dyn_seg_rec(self, frame, iml):

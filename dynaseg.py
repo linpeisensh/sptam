@@ -146,6 +146,7 @@ class DynaSeg():
                 res[ci] = True
             else:
                 res += [True]
+                nobj += 1
             mask = mask.astype(np.float64)
             mask_dil = cv.dilate(mask, self.kernel)
             ao = 0

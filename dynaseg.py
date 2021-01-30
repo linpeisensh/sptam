@@ -173,7 +173,9 @@ class DynaSeg():
             nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
             nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
             for nmp in nmps:
-                nm[min(round(nmp[1]), self.h - 1), min(round(nmp[0]), self.w - 1)] = True
+                x, y = round(nmp[1]), round(nmp[0])
+                if 0 <= x < self.h and 0 <= y < self.w:
+                    nm[x,y] = True
             self.obj[i][0] = nm
 
         res = [False] * nobj

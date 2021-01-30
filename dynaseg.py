@@ -75,19 +75,10 @@ class DynaSeg():
             self.obj[ci][1] += 1
         return ci
 
-    def dyn_seg(self, frame, iml):
-        '''
-        dynamic segmentation based on projection error and object recording
-        :param frame: original sptam frame after tracking
-        :param iml: left image
-        :return:
-        c: dynamic segmentation of iml
-        '''
-        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+    def projection(self,frame, frame_gray):
         # calculate optical flow
         p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
         self.ast *= st
-        self.old_gray = frame_gray.copy()
         tfm = Rt_to_tran(frame.transform_matrix)
         tfm = self.otfm.dot(tfm)
         b = cv.Rodrigues(tfm[:3, :3])
@@ -112,6 +103,54 @@ class DynaSeg():
         else:
             cverror = float('inf')
         print(cverror)
+        self.p1 = p1
+        return error, imgpts, P
+
+
+    def dyn_seg(self, frame, iml):
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        error,imgpts, P = self.projection(frame,frame_gray)
+        merror = np.array(error)
+        for i in range(len(error)):
+            if imgpts[i][0] < 400:
+                merror[i] = max(merror[i] - 15 * 15, 0)
+            if imgpts[i][0] > 900:
+                merror[i] = max(merror[i] - 325, 0)
+        ge = merror > np.median(error)
+
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        masks = top.get_field("mask").numpy()
+
+        c = np.zeros((self.h, self.w))
+        n = len(masks)
+        for i in range(n):
+            mask = masks[i].squeeze()
+            mask = mask.astype(np.float64)
+            mask_dil = cv.dilate(mask, self.kernel)
+            ao = 0
+            co = 0
+            for i in range(len(error)):
+                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+                    ao += 1
+                    if ge[i]:
+                        co += 1
+            if ao > 1:
+                if co / ao > 0.5:
+                    c[mask_dil.astype(np.bool)] = 255
+        return c
+
+    def dyn_seg_rec(self, frame, iml):
+        '''
+        dynamic segmentation based on projection error and object recording
+        :param frame: original sptam frame after tracking
+        :param iml: left image
+        :return:
+        c: dynamic segmentation of iml
+        '''
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        error, imgpts, P = self.projection(frame, frame_gray)
 
         merror = np.array(error)
         for i in range(len(error)):
@@ -163,7 +202,7 @@ class DynaSeg():
                 c[mask_dil.astype(np.bool)] = 255
         self.obj = np.array(self.obj).astype(object)
         self.obj = list(self.obj[res])
-        self.p1 = p1
+        self.old_gray = frame_gray.copy()
         return c
 
 

@@ -25,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="741">
-              <caret line="265" column="69" lean-forward="true" selection-start-line="265" selection-start-column="69" selection-end-line="265" selection-end-column="69" />
+            <state relative-caret-position="684">
+              <caret line="254" column="37" lean-forward="true" selection-start-line="254" selection-start-column="37" selection-end-line="254" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -37,10 +37,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-410">
+            <state relative-caret-position="1186">
               <caret line="137" column="31" lean-forward="true" selection-start-line="137" selection-start-column="31" selection-end-line="137" selection-end-column="31" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -108,7 +108,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>coco_demo</find>
       <find>otfm</find>
       <find>kernel</find>
       <find>self.i</find>
@@ -138,6 +137,7 @@
       <find>obj</find>
       <find>self.old_gray</find>
       <find>ratrajectory</find>
+      <find>dseg</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -256,12 +256,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="89319000" />
+      <workItem from="1610734265042" duration="90042000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="89319000" />
+    <option name="totallyTimeSpent" value="90042000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -394,20 +394,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dysptam.py">
+    <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="741">
-          <caret line="265" column="69" lean-forward="true" selection-start-line="265" selection-start-column="69" selection-end-line="265" selection-end-column="69" />
+        <state relative-caret-position="1186">
+          <caret line="137" column="31" lean-forward="true" selection-start-line="137" selection-start-column="31" selection-end-line="137" selection-end-column="31" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/dynaseg.py">
+    <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-410">
-          <caret line="137" column="31" lean-forward="true" selection-start-line="137" selection-start-column="31" selection-end-line="137" selection-end-column="31" />
+        <state relative-caret-position="684">
+          <caret line="254" column="37" lean-forward="true" selection-start-line="254" selection-start-column="37" selection-end-line="254" selection-end-column="37" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

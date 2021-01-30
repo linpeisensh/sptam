@@ -143,6 +143,7 @@ if __name__ == '__main__':
     if n:
         iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
         dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
+        dseg1 = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
         for i in range(n):
             iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
             imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
@@ -219,10 +220,10 @@ if __name__ == '__main__':
             # dyn + record
             if i % 5 == 0:
                 if i:
-                    c = dseg.dyn_seg_rec(frame,iml)
-                dseg.updata(iml,imr,i,frame)
+                    c = dseg1.dyn_seg_rec(frame,iml)
+                dseg1.updata(iml,imr,i,frame)
             else:
-                c = dseg.dyn_seg_rec(frame,iml)
+                c = dseg1.dyn_seg_rec(frame,iml)
 
             featurel = ImageFeature(iml, params)
             featurer = ImageFeature(imr, params)
@@ -253,8 +254,8 @@ if __name__ == '__main__':
             else:
                 sptam2.track(raframe)
 
-            R = aframe.pose.orientation().matrix()
-            t = aframe.pose.position()
+            R = raframe.pose.orientation().matrix()
+            t = raframe.pose.position()
             cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
             ratrajectory.append((cur_tra))
 

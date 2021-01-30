@@ -176,10 +176,10 @@ if __name__ == '__main__':
             # dyn
             if i % 5 == 0:
                 if i:
-                    c = dseg.dyn_seg(frame,iml)
+                    c = dseg.dyn_seg_rec(frame,iml)
                 dseg.updata(iml,imr,i,frame)
             else:
-                c = dseg.dyn_seg(frame,iml)
+                c = dseg.dyn_seg_rec(frame,iml)
 
             featurel = ImageFeature(iml, params)
             featurer = ImageFeature(imr, params)

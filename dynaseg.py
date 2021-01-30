@@ -201,7 +201,7 @@ class DynaSeg():
                     self.obj[ci][2] += 1
             if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd:
                 c[mask_dil.astype(np.bool)] = 255
-        self.obj = np.array(self.obj).astype(object)
+        self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])
         self.old_gray = frame_gray.copy()
         return c

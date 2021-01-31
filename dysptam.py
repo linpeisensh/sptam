@@ -220,8 +220,8 @@ if __name__ == '__main__':
             # dyn + record
             if i % 5 == 0:
                 if i:
-                    c = dseg1.dyn_seg_rec(frame,iml)
-                dseg1.updata(iml,imr,i,frame)
+                    c = dseg1.dyn_seg_rec(aframe,iml)
+                dseg1.updata(iml,imr,i,aframe)
             else:
                 c = dseg1.dyn_seg_rec(frame,iml)
 

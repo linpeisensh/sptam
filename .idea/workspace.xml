@@ -38,7 +38,7 @@
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="260">
-              <caret line="225" column="38" selection-start-line="225" selection-start-column="38" selection-end-line="225" selection-end-column="38" />
+              <caret line="225" column="48" lean-forward="true" selection-start-line="225" selection-start-column="48" selection-end-line="225" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -241,15 +241,15 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
-      <workItem from="1610734265042" duration="106325000" />
+      <workItem from="1610734265042" duration="106962000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="106325000" />
+    <option name="totallyTimeSpent" value="106962000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1376" height="744" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
@@ -402,7 +402,7 @@
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="260">
-          <caret line="225" column="38" selection-start-line="225" selection-start-column="38" selection-end-line="225" selection-end-column="38" />
+          <caret line="225" column="48" lean-forward="true" selection-start-line="225" selection-start-column="48" selection-end-line="225" selection-end-column="48" />
         </state>
       </provider>
     </entry>

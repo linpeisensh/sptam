@@ -190,96 +190,96 @@ class DynaSeg():
         self.old_gray = frame_gray.copy()
         return c
 
-    # def dyn_seg(self, frame, iml): 0
-    #     frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-    #     # calculate optical flow
-    #     p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
-    #     self.ast *= st
-    #     self.old_gray = frame_gray.copy()
-    #     tfm = Rt_to_tran(frame.transform_matrix)
-    #     tfm = self.otfm.dot(tfm)
-    #     b = cv.Rodrigues(tfm[:3, :3])
-    #     R = b[0]
-    #     t = tfm[:3, 3].reshape((3, 1))
-    #
-    #     P = p1[self.ast == 1]
-    #     objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
-    #     imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
-    #     imgpts = imgpts.squeeze()
-    #     P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
-    #     imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
-    #     P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
-    #     imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
-    #     error = ((P - imgpts) ** 2).sum(-1)
-    #     P = P[error < 1e6]
-    #     imgpts = imgpts[error < 1e6].astype(np.float32)
-    #     error = error[error < 1e6]
-    #     nl2m, res = self.get_instance_mask(iml)
-    #     nl2m_dil = cv.dilate(nl2m, self.kernel)[:, :, None]
-    #     merror = np.array(error)
-    #     if len(imgpts):
-    #         cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
-    #     else:
-    #         cverror = float('inf')
-    #     print(cverror)
-    #     for i in range(len(error)):
-    #         if imgpts[i][0] < 400:
-    #             merror[i] = max(merror[i] - 15 * 15, 0)
-    #         if imgpts[i][0] > 900:
-    #             merror[i] = max(merror[i] - 325, 0)
-    #     ge = merror > np.median(error)
-    #     nres = set()
-    #     for o in range(1, res + 1):
-    #         ao = 0
-    #         co = 0
-    #         for i in range(len(error)):
-    #             if nl2m_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)] == o:
-    #                 ao += 1
-    #                 if ge[i]:
-    #                     co += 1
-    #         if ao > 1:
-    #             if co / ao > 0.5:
-    #                 nres.add(o)
-    #     c = np.zeros_like(nl2m_dil)
-    #     for i in nres:
-    #         c[nl2m_dil == i] = 255
-    #     self.p1 = p1
-    #     return c
-
-    def dyn_seg(self, frame, iml): #ori dyn_seg 1
+    def dyn_seg(self, frame, iml): # 0
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error,imgpts, P = self.projection(frame,frame_gray)
+        # calculate optical flow
+        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
+        self.ast *= st
+        self.old_gray = frame_gray.copy()
+        tfm = Rt_to_tran(frame.transform_matrix)
+        tfm = self.otfm.dot(tfm)
+        b = cv.Rodrigues(tfm[:3, :3])
+        R = b[0]
+        t = tfm[:3, 3].reshape((3, 1))
+
+        P = p1[self.ast == 1]
+        objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
+        imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
+        imgpts = imgpts.squeeze()
+        P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
+        imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
+        P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        error = ((P - imgpts) ** 2).sum(-1)
+        P = P[error < 1e6]
+        imgpts = imgpts[error < 1e6].astype(np.float32)
+        error = error[error < 1e6]
+        nl2m, res = self.get_instance_mask(iml)
+        nl2m_dil = cv.dilate(nl2m, self.kernel)[:, :, None]
         merror = np.array(error)
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
         for i in range(len(error)):
             if imgpts[i][0] < 400:
                 merror[i] = max(merror[i] - 15 * 15, 0)
             if imgpts[i][0] > 900:
                 merror[i] = max(merror[i] - 325, 0)
         ge = merror > np.median(error)
-
-        image = iml.astype(np.uint8)
-        prediction = self.coco.compute_prediction(image)
-        top = self.coco.select_top_predictions(prediction)
-        masks = top.get_field("mask").numpy()
-
-        c = np.zeros((self.h, self.w))
-        n = len(masks)
-        for i in range(n):
-            mask = masks[i].squeeze()
-            mask = mask.astype(np.float64)
-            mask_dil = cv.dilate(mask, self.kernel)
+        nres = set()
+        for o in range(1, res + 1):
             ao = 0
             co = 0
             for i in range(len(error)):
-                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+                if nl2m_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)] == o:
                     ao += 1
                     if ge[i]:
                         co += 1
             if ao > 1:
                 if co / ao > 0.5:
-                    c[mask_dil.astype(np.bool)] = 255
-        self.old_gray = frame_gray.copy()
+                    nres.add(o)
+        c = np.zeros_like(nl2m_dil)
+        for i in nres:
+            c[nl2m_dil == i] = 255
+        self.p1 = p1
         return c
+
+    # def dyn_seg(self, frame, iml): #ori dyn_seg 1
+    #     frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+    #     error,imgpts, P = self.projection(frame,frame_gray)
+    #     merror = np.array(error)
+    #     for i in range(len(error)):
+    #         if imgpts[i][0] < 400:
+    #             merror[i] = max(merror[i] - 15 * 15, 0)
+    #         if imgpts[i][0] > 900:
+    #             merror[i] = max(merror[i] - 325, 0)
+    #     ge = merror > np.median(error)
+    #
+    #     image = iml.astype(np.uint8)
+    #     prediction = self.coco.compute_prediction(image)
+    #     top = self.coco.select_top_predictions(prediction)
+    #     masks = top.get_field("mask").numpy()
+    #
+    #     c = np.zeros((self.h, self.w))
+    #     n = len(masks)
+    #     for i in range(n):
+    #         mask = masks[i].squeeze()
+    #         mask = mask.astype(np.float64)
+    #         mask_dil = cv.dilate(mask, self.kernel)
+    #         ao = 0
+    #         co = 0
+    #         for i in range(len(error)):
+    #             if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+    #                 ao += 1
+    #                 if ge[i]:
+    #                     co += 1
+    #         if ao > 1:
+    #             if co / ao > 0.5:
+    #                 c[mask_dil.astype(np.bool)] = 255
+    #     self.old_gray = frame_gray.copy()
+    #     return c
 
 def Rt_to_tran(tfm):
   res = np.zeros((4,4))

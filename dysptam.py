@@ -150,6 +150,7 @@ if __name__ == '__main__':
             # original
             featurel = ImageFeature(iml, params)
             featurer = ImageFeature(imr, params)
+            timestamp = dataset.timestamps[i]
 
             featurel.extract()
 

@@ -233,7 +233,8 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(error)):
-                if nl2m_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)] == o:
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and nl2m_dil[x, y]==o:
                     ao += 1
                     if ge[i]:
                         co += 1
@@ -271,7 +272,8 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(error)):
-                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1

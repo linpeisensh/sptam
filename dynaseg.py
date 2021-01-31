@@ -17,7 +17,7 @@ class DynaSeg():
         self.mtx = mtx
         self.dist = dist
         self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
-        self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
+        # self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
         self.IOU_thd = 0.5
@@ -347,14 +347,13 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-        for obj in self.obj:
-            if obj[2] / obj[1] >= self.dyn_thd or obj[2] > 3:
-                c[obj[0]] = 255
+            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd or self.obj[ci][2] > 2:
+                c[mask_dil.astype(np.bool)] = 255
         self.obj = np.array(self.obj, dtype=object)
         self.obj = list(self.obj[res])
         self.old_gray = frame_gray.copy()
 
-        return cv.erode(c, self.e_kernel)
+        return c
 
 def Rt_to_tran(tfm):
   res = np.zeros((4,4))

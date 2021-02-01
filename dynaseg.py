@@ -109,20 +109,6 @@ class DynaSeg():
         self.p1 = p1
         return error, imgpts, P
 
-    def get_instance_mask(self, iml):
-        image = iml.astype(np.uint8)
-        prediction = self.coco.compute_prediction(image)
-        top = self.coco.select_top_predictions(prediction)
-        masks = top.get_field("mask").numpy()
-        rmask = np.zeros(image.shape[:2])
-        n = len(masks)
-        i = 0
-        for i in range(n):
-            mask = masks[i].squeeze()
-            rmask[mask] = i + 1
-        return rmask, i + 1
-
-
     def dyn_seg_rec(self, frame, iml):
         '''
         dynamic segmentation based on projection error and object recording
@@ -183,16 +169,16 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd or self.obj[ci][2] > 3:
+            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd: # c1 or self.obj[ci][2] > 3
                 c[mask_dil.astype(np.bool)] = 255
         self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])
         self.old_gray = frame_gray.copy()
         return c
 
-    def dyn_seg(self, frame, iml): #ori dyn_seg 1
+    def dyn_seg(self, frame, iml):  # ori dyn_seg 1
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error,imgpts, P = self.projection(frame,frame_gray)
+        error, imgpts, P = self.projection(frame, frame_gray)
         merror = np.array(error)
         for i in range(len(error)):
             if imgpts[i][0] < 400:
@@ -227,11 +213,10 @@ class DynaSeg():
         return c
 
 def Rt_to_tran(tfm):
-  res = np.zeros((4,4))
-  res[:3,:] = tfm[:3,:]
-  res[3,3] = 1
-  return res
-
+    res = np.zeros((4, 4))
+    res[:3, :] = tfm[:3, :]
+    res[3, 3] = 1
+    return res
 
 def preprocess(img1, img2):
     im1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
@@ -242,10 +227,10 @@ def preprocess(img1, img2):
 
     return im1, im2
 
-def get_IOU(m1,m2):
-  I = np.sum(np.logical_and(m1,m2))
-  U = np.sum(np.logical_or(m1,m2))
-  if U:
-    return I/U
-  else:
-    return 0
+def get_IOU(m1, m2):
+    I = np.sum(np.logical_and(m1, m2))
+    U = np.sum(np.logical_or(m1, m2))
+    if U:
+        return I / U
+    else:
+        return 0

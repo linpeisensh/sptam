@@ -109,21 +109,6 @@ class DynaSeg():
         self.p1 = p1
         return error, imgpts, P
 
-    def get_instance_mask(self, iml):
-        image = iml.astype(np.uint8)
-        prediction = self.coco.compute_prediction(image)
-        top = self.coco.select_top_predictions(prediction)
-        masks = top.get_field("mask").numpy()
-        rmask = np.zeros(image.shape[:2])
-        n = len(masks)
-        i = 0
-        for i in range(n):
-            mask = masks[i].squeeze()
-            rmask[mask] = i + 1
-        return rmask, i + 1
-
-
-
     def dyn_seg_rec(self, frame, iml):
         '''
         dynamic segmentation based on projection error and object recording
@@ -190,6 +175,19 @@ class DynaSeg():
         self.obj = list(self.obj[res])
         self.old_gray = frame_gray.copy()
         return c
+
+    def get_instance_mask(self, iml):
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        masks = top.get_field("mask").numpy()
+        rmask = np.zeros(image.shape[:2])
+        n = len(masks)
+        i = 0
+        for i in range(n):
+            mask = masks[i].squeeze()
+            rmask[mask] = i + 1
+        return rmask, i + 1
 
     def dyn_seg(self, frame, iml): # 0
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)

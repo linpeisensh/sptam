@@ -13,6 +13,17 @@ from components import Measurement
 from motion import MotionModel
 from loopclosing import LoopClosing
 
+import g2o
+import argparse
+
+from threading import Thread
+
+from components import Camera
+from components import StereoFrame
+from feature import ImageFeature
+from params import ParamsKITTI, ParamsEuroc
+from dataset import KITTIOdometry, EuRoCDataset
+
 from maskrcnn_benchmark.config import cfg
 from demo.predictor import COCODemo
 
@@ -446,17 +457,6 @@ def get_instance_mask(image,coco_demo):
     return rmask, i + 1
 
 if __name__ == '__main__':
-    import g2o
-
-    import argparse
-
-    from threading import Thread
-
-    from components import Camera
-    from components import StereoFrame
-    from feature import ImageFeature
-    from params import ParamsKITTI, ParamsEuroc
-    from dataset import KITTIOdometry, EuRoCDataset
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--no-viz', action='store_true', help='do not visualize')

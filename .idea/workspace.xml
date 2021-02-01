@@ -18,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="267">
-              <caret line="185" column="68" selection-start-line="185" selection-start-column="68" selection-end-line="185" selection-end-column="68" />
+            <state relative-caret-position="152">
+              <caret line="171" column="93" selection-start-line="171" selection-start-column="93" selection-end-line="171" selection-end-column="93" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -108,10 +108,10 @@
         <option value="$PROJECT_DIR$/sptam.py" />
         <option value="$PROJECT_DIR$/dataset.py" />
         <option value="$PROJECT_DIR$/params.py" />
-        <option value="$PROJECT_DIR$/dynaseg.py" />
         <option value="$PROJECT_DIR$/msptam.py" />
         <option value="$PROJECT_DIR$/script.py" />
         <option value="$PROJECT_DIR$/dysptam.py" />
+        <option value="$PROJECT_DIR$/dynaseg.py" />
       </list>
     </option>
   </component>
@@ -222,12 +222,12 @@
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
       <workItem from="1610734265042" duration="106962000" />
-      <workItem from="1612115824962" duration="11674000" />
+      <workItem from="1612115824962" duration="12375000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="118636000" />
+    <option name="totallyTimeSpent" value="119337000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -362,8 +362,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="267">
-          <caret line="185" column="68" selection-start-line="185" selection-start-column="68" selection-end-line="185" selection-end-column="68" />
+        <state relative-caret-position="152">
+          <caret line="171" column="93" selection-start-line="171" selection-start-column="93" selection-end-line="171" selection-end-column="93" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

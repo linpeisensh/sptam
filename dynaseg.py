@@ -134,30 +134,29 @@ class DynaSeg():
         masks = top.get_field("mask").numpy()
 
         nobj = len(self.obj)
+        res = [True] * nobj
         for i in range(nobj):
-            cm = np.where(self.obj[i][0] == True)
-            cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
+            cm = np.where(self.obj[i][0]==True)
+            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
             nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
             nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
             for nmp in nmps:
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x, y] = True
-            self.obj[i][0] = nm
-
-        res = [False] * nobj
+                  nm[x,y] = True
+                self.obj[i][0] = nm
+            if np.sum(nm) < 225:
+                res[i] = False
+        self.obj = np.array(self.obj,dtype=object)
+        self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))
         n = len(masks)
         for i in range(n):
             mask = masks[i].squeeze()
             ci = self.track_obj(mask)
-            if ci < nobj:
-                res[ci] = True
-            else:
-                res += [True]
-                nobj += 1
             mask = mask.astype(np.float64)
-            mask_dil = cv.dilate(mask, self.kernel)
+            mask_dil =  cv.dilate(mask, self.kernel)
+            self.obj[ci][0] = mask_dil.astype(np.bool)
             ao = 0
             co = 0
             for i in range(len(error)):
@@ -169,12 +168,11 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd:
-                c[mask_dil.astype(np.bool)] = 255
-        self.obj = np.array(self.obj,dtype=object)
-        self.obj = list(self.obj[res])
+        for obj in self.obj:
+            if obj[2] / obj[1]  >= self.dyn_thd or obj[2]>3:
+                c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
-        return c
+        return cv.erode(c,self.e_kernel)
 
     def get_instance_mask(self, iml):
         image = iml.astype(np.uint8)

@@ -169,7 +169,7 @@ class DynaSeg():
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
         for obj in self.obj:
-            if obj[2] / obj[1]  >= self.dyn_thd or obj[2]>3:
+            if obj[2] / obj[1]  >= self.dyn_thd: # c1  or obj[2]>3
                 c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
         return cv.erode(c,self.e_kernel)

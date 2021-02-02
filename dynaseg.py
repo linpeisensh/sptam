@@ -17,7 +17,7 @@ class DynaSeg():
         self.mtx = mtx
         self.dist = dist
         self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
-        self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
+        # self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
         self.IOU_thd = 0.5
@@ -128,51 +128,52 @@ class DynaSeg():
                 merror[i] = max(merror[i] - 325, 0)
         ge = merror > np.median(error)
 
+        nobj = len(self.obj)
+        res = [True] * nobj
+        for i in range(nobj):
+            cm = np.where(self.obj[i][0]==True)
+            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
+            for nmp in nmps:
+                x, y = round(nmp[1]), round(nmp[0])
+                if 0 <= x < self.h and 0 <= y < self.w:
+                  nm[x,y] = 1
+            nm = cv.erode(cv.dilate(nm,self.kernel),self.kernel)
+            if np.sum(nm) < 900:
+                res[i] = False
+            else:
+                self.obj[i][0] = nm.astype(np.bool)
+        self.obj = np.array(self.obj,dtype=object)
+        self.obj = list(self.obj[res])
+
         image = iml.astype(np.uint8)
         prediction = self.coco.compute_prediction(image)
         top = self.coco.select_top_predictions(prediction)
         masks = top.get_field("mask").numpy()
 
-        nobj = len(self.obj)
-        for i in range(nobj):
-            cm = np.where(self.obj[i][0] == True)
-            cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
-            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
-            for nmp in nmps:
-                x, y = round(nmp[1]), round(nmp[0])
-                if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x, y] = True
-            self.obj[i][0] = nm
-
-        res = [False] * nobj
         c = np.zeros((self.h, self.w))
         n = len(masks)
         for i in range(n):
             mask = masks[i].squeeze()
             ci = self.track_obj(mask)
-            if ci < nobj:
-                res[ci] = True
-            else:
-                res += [True]
-                nobj += 1
             mask = mask.astype(np.float64)
-            mask_dil = cv.dilate(mask, self.kernel)
+            mask_dil =  cv.dilate(mask, self.kernel)
+            self.obj[ci][0] = mask_dil.astype(np.bool)
             ao = 0
             co = 0
             for i in range(len(error)):
-                x, y = round(P[i][1]), round(P[i][0])
-                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
+              x, y = round(P[i][1]), round(P[i][0])
+              if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-            if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd: # c1 or self.obj[ci][2] > 3
-                c[mask_dil.astype(np.bool)] = 255
-        self.obj = np.array(self.obj,dtype=object)
-        self.obj = list(self.obj[res])
+        for obj in self.obj:
+            if obj[2] / obj[1]  >= self.dyn_thd or obj[2]>3:
+                c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
         return c
 

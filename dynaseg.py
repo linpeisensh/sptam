@@ -215,7 +215,7 @@ class DynaSeg():
                 res[i] = False
             else:
                 nm = cv.dilate(nm, self.kernel)
-                nm = cv.erode(nm, self.kernel)
+                # nm = cv.erode(nm, self.kernel)
                 self.obj[i][0] = nm.astype(np.bool)
         self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])

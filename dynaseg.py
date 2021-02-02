@@ -20,7 +20,7 @@ class DynaSeg():
         self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
-        self.IOU_thd = 0.5
+        self.IOU_thd = 0.2
         self.dyn_thd = 0.8
 
 
@@ -211,12 +211,11 @@ class DynaSeg():
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
                     nm[x,y] = 1
-            nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-            if np.sum(nm) < 500:
-                res[i] = False
-            else:
-                nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-                self.obj[i][0] = nm.astype(np.bool)
+            # if np.sum(nm) < 500:
+            #     res[i] = False
+            # else:
+            #     nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
+            self.obj[i][0] = nm.astype(np.bool)
         self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))

@@ -2,9 +2,17 @@ import numpy as np
 import cv2 as cv
 import time
 import traceback
+import g2o
+import argparse
+from threading import Thread
 
 from dynaseg import DynaSeg
 from msptam import SPTAM, stereoCamera
+from components import Camera
+from components import StereoFrame
+from feature import ImageFeature
+from params import ParamsKITTI, ParamsEuroc
+from dataset import KITTIOdometry, EuRoCDataset
 
 from maskrcnn_benchmark.config import cfg
 from demo.predictor import COCODemo
@@ -39,17 +47,6 @@ def save_trajectory(trajectory, filename):
 
 
 if __name__ == '__main__':
-    import g2o
-
-    import argparse
-
-    from threading import Thread
-
-    from components import Camera
-    from components import StereoFrame
-    from feature import ImageFeature
-    from params import ParamsKITTI, ParamsEuroc
-    from dataset import KITTIOdometry, EuRoCDataset
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--no-viz', action='store_true', help='do not visualize')
@@ -86,7 +83,6 @@ if __name__ == '__main__':
 
     sptam0 = SPTAM(params)
     sptam1 = SPTAM(params)
-    sptam2 = SPTAM(params)
 
     config = stereoCamera()
     mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
@@ -110,7 +106,6 @@ if __name__ == '__main__':
 
     otrajectory = []
     atrajectory = []
-    ratrajectory = []
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
 
@@ -144,7 +139,6 @@ if __name__ == '__main__':
     if n:
         iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
         dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
-        dseg1 = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
         for i in range(n):
             iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
             imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
@@ -219,47 +213,7 @@ if __name__ == '__main__':
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 atrajectory.append((cur_tra))
 
-                # dyn + record
-                if i % 5 == 0:
-                    if i:
-                        c = dseg1.dyn_seg_rec(frame, iml)  # dyn_seg_rec
-                    dseg1.updata(iml, imr, i, frame)
-                else:
-                    c = dseg1.dyn_seg_rec(frame, iml)  # dyn_seg_rec
 
-                featurel = ImageFeature(iml, params)
-                featurer = ImageFeature(imr, params)
-
-                t = Thread(target=featurer.extract)
-                t.start()
-                featurel.extract()
-                t.join()
-
-                if i:
-                    lm = c
-                    rm = c
-                    ofl = np.array(featurel.keypoints)
-                    ofr = np.array(featurer.keypoints)
-                    flm = maskofkp(ofl, lm)
-                    frm = maskofkp(ofr, rm)
-                    featurel.keypoints = list(ofl[flm])
-                    featurer.keypoints = list(ofr[frm])
-                    featurel.descriptors = featurel.descriptors[flm]
-                    featurer.descriptors = featurer.descriptors[frm]
-                    featurel.unmatched = featurel.unmatched[flm]
-                    featurer.unmatched = featurer.unmatched[frm]
-
-                raframe = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
-
-                if not sptam2.is_initialized():
-                    sptam2.initialize(raframe)
-                else:
-                    sptam2.track(raframe)
-
-                R = raframe.pose.orientation().matrix()
-                t = raframe.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                ratrajectory.append((cur_tra))
 
 
                 if visualize:
@@ -271,11 +225,9 @@ if __name__ == '__main__':
 
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
-        save_trajectory(ratrajectory, 'ra{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
         sptam0.stop()
         sptam1.stop()
-        sptam2.stop()
         if visualize:
             viewer.stop()
     else:

@@ -206,7 +206,7 @@ class DynaSeg():
             cm = np.where(self.obj[i][0]==True)
             cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
             nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0],dtype=np.float64)
+            nm = np.zeros_like(self.obj[i][0])
             for nmp in nmps:
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
@@ -214,8 +214,9 @@ class DynaSeg():
             if np.sum(nm) < 500:
                 res[i] = False
             else:
+                nm  = nm.astype(np.float64)
                 nm = cv.dilate(nm, self.kernel)
-                # nm = cv.erode(nm, self.kernel)
+                nm = cv.erode(nm, self.kernel)
                 self.obj[i][0] = nm.astype(np.bool)
         self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])

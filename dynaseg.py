@@ -138,7 +138,7 @@ class DynaSeg():
             for nmp in nmps:
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
-                  nm[x,y] = 1
+                    nm[x,y] = 1
             nm = cv.erode(cv.dilate(nm,self.kernel),self.kernel)
             if np.sum(nm) < 900:
                 res[i] = False
@@ -163,8 +163,8 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(error)):
-              x, y = round(P[i][1]), round(P[i][0])
-              if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1

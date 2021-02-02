@@ -200,25 +200,25 @@ class DynaSeg():
         top = self.coco.select_top_predictions(prediction)
         masks = top.get_field("mask").numpy()
 
-        nobj = len(self.obj)
-        res = [True] * nobj
-        for i in range(nobj):
-            cm = np.where(self.obj[i][0]==True)
-            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
-            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
-            for nmp in nmps:
-                x, y = round(nmp[1]), round(nmp[0])
-                if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x,y] = 1
-            nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-            if np.sum(nm) < 900:
-                res[i] = False
-            else:
-                nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-                self.obj[i][0] = nm
-        self.obj = np.array(self.obj,dtype=object)
-        self.obj = list(self.obj[res])
+        # nobj = len(self.obj)
+        # res = [True] * nobj
+        # for i in range(nobj):
+        #     cm = np.where(self.obj[i][0]==True)
+        #     cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+        #     nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+        #     nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
+        #     for nmp in nmps:
+        #         x, y = round(nmp[1]), round(nmp[0])
+        #         if 0 <= x < self.h and 0 <= y < self.w:
+        #             nm[x,y] = 1
+        #     nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
+        #     if np.sum(nm) < 500:
+        #         res[i] = False
+        #     else:
+        #         nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
+        #         self.obj[i][0] = nm
+        # self.obj = np.array(self.obj,dtype=object)
+        # self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))
         n = len(masks)
         for i in range(n):
@@ -242,7 +242,7 @@ class DynaSeg():
             if obj[2] / obj[1]  >= self.dyn_thd: # c1  or obj[2]>3
                 c[obj[0]] = 255
         self.old_gray = frame_gray.copy()
-        return cv.erode(c,self.e_kernel)
+        return c
 
     def dyn_seg(self, frame, iml): #ori dyn_seg 1
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)

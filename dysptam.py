@@ -85,7 +85,6 @@ if __name__ == '__main__':
 
 
     sptam0 = SPTAM(params)
-    sptam1 = SPTAM(params)
     sptam2 = SPTAM(params)
 
     config = stereoCamera()
@@ -97,9 +96,6 @@ if __name__ == '__main__':
 
 
     visualize = not args.no_viz
-    if visualize:
-        from viewer import MapViewer
-        viewer = MapViewer(sptam1, params)
 
     cam = Camera(
         dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
@@ -109,7 +105,6 @@ if __name__ == '__main__':
     print(dataset.cam.fx)
 
     otrajectory = []
-    atrajectory = []
     ratrajectory = []
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
@@ -175,50 +170,6 @@ if __name__ == '__main__':
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append((cur_tra))
 
-                # dyn
-                if i % 5 == 0:
-                    if i:
-                        c = dseg.dyn_seg(frame,iml)
-                    dseg.updata(iml,imr,i,frame)
-                else:
-                    c = dseg.dyn_seg(frame,iml)
-
-                featurel = ImageFeature(iml, params)
-                featurer = ImageFeature(imr, params)
-
-                t = Thread(target=featurer.extract)
-                t.start()
-                featurel.extract()
-                t.join()
-
-
-                if i:
-                    lm = c
-                    rm = c
-                    ofl = np.array(featurel.keypoints)
-                    ofr = np.array(featurer.keypoints)
-                    flm = maskofkp(ofl, lm)
-                    frm = maskofkp(ofr, rm)
-                    featurel.keypoints = list(ofl[flm])
-                    featurer.keypoints = list(ofr[frm])
-                    featurel.descriptors = featurel.descriptors[flm]
-                    featurer.descriptors = featurer.descriptors[frm]
-                    featurel.unmatched = featurel.unmatched[flm]
-                    featurer.unmatched = featurer.unmatched[frm]
-
-                aframe = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
-
-                if not sptam1.is_initialized():
-                    sptam1.initialize(aframe)
-                else:
-                    sptam1.track(aframe)
-
-
-                R = aframe.pose.orientation().matrix()
-                t = aframe.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                atrajectory.append((cur_tra))
-
                 # dyn + record
                 if i % 5 == 0:
                     if i:
@@ -262,21 +213,16 @@ if __name__ == '__main__':
                 ratrajectory.append((cur_tra))
 
 
-                if visualize:
-                    viewer.update()
+
             except Exception as e:
                 traceback.print_exc()
                 time.sleep(2)
 
 
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
-        save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
-        save_trajectory(ratrajectory, 'ra{}.txt'.format(args.path[-2:]))
+        save_trajectory(ratrajectory, 'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
         sptam0.stop()
-        sptam1.stop()
         sptam2.stop()
-        if visualize:
-            viewer.stop()
     else:
         print('path is wrong')

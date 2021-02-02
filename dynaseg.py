@@ -226,7 +226,7 @@ class DynaSeg():
             mask = mask.astype(np.float64)
             mask_dil =  cv.dilate(mask, self.kernel)
             ci = self.track_obj(mask_dil)
-            self.obj[ci][0] = mask_dil
+            self.obj[ci][0] = mask_dil.astype(np.bool)
             ao = 0
             co = 0
             for i in range(len(error)):

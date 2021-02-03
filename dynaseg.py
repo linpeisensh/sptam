@@ -73,7 +73,7 @@ class DynaSeg():
                 max_IOU = cIOU
                 ci = i
         if ci == n:
-            self.obj.append([mask, 1, 0, idx])
+            self.obj.append([mask.astype(np.bool), 1, 0, idx])
         else:
             self.obj[ci][0] = mask.astype(np.bool)
             self.obj[ci][1] += 1

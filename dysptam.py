@@ -88,7 +88,7 @@ if __name__ == '__main__':
     mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
     dist = np.array([[0] * 4]).reshape(1, 4).astype(np.float32)
 
-    dilation = 5
+    dilation = 2
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
 
 

@@ -20,7 +20,7 @@ class DynaSeg():
         self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = np.array([])
-        self.IOU_thd = 0.25
+        self.IOU_thd = 0.2
         self.dyn_thd = 0.8
 
 
@@ -219,14 +219,20 @@ class DynaSeg():
                 nm = cv.dilate(nm, self.kernel)
                 nm = cv.erode(nm, self.kernel)
                 self.obj[i][0] = nm.astype(np.bool)
+
         self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))
         n = len(masks)
+        nobj = len(self.obj)
+        cnd = [True] * nobj
         for i in range(n):
             mask = masks[i].squeeze()
             mask = mask.astype(np.float64)
             mask_dil =  cv.dilate(mask, self.kernel)
             ci = self.track_obj(mask_dil,idx)
+            if ci == nobj:
+                cnd.append(True)
+                nobj += 1
             ao = 0
             co = 0
             for i in range(len(error)):
@@ -238,6 +244,8 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
+                    cnd[ci] = False
+
         nobj = len(self.obj)
         res = [True] * nobj
         print('num of objs', nobj)
@@ -246,6 +254,8 @@ class DynaSeg():
                 res[i] = False
             elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
                 c[self.obj[i][0]] = 255
+            elif cnd[i]:
+                self.obj[i][2] = max(0,self.obj[i][2]-0.5)
         self.obj = np.array(self.obj, dtype=object)
         self.obj = self.obj[res]
         self.old_gray = frame_gray.copy()

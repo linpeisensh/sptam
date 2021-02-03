@@ -32,8 +32,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="133" column="31" selection-start-line="133" selection-start-column="28" selection-end-line="133" selection-end-column="31" />
+            <state relative-caret-position="860">
+              <caret line="205" column="16" selection-start-line="205" selection-start-column="16" selection-end-line="205" selection-end-column="16" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -44,8 +44,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="52">
-              <caret line="174" column="54" selection-start-line="174" selection-start-column="54" selection-end-line="174" selection-end-column="54" />
+            <state relative-caret-position="1810">
+              <caret line="185" column="25" selection-start-line="185" selection-start-column="25" selection-end-line="185" selection-end-column="25" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -235,12 +235,12 @@
       <option name="presentableId" value="Default" />
       <updated>1610734263471</updated>
       <workItem from="1610734265042" duration="106962000" />
-      <workItem from="1612115824962" duration="25998000" />
+      <workItem from="1612115824962" duration="26398000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="132960000" />
+    <option name="totallyTimeSpent" value="133360000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -365,8 +365,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="133" column="31" selection-start-line="133" selection-start-column="28" selection-end-line="133" selection-end-column="31" />
+        <state relative-caret-position="860">
+          <caret line="205" column="16" selection-start-line="205" selection-start-column="16" selection-end-line="205" selection-end-column="16" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -375,8 +375,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="52">
-          <caret line="174" column="54" selection-start-line="174" selection-start-column="54" selection-end-line="174" selection-end-column="54" />
+        <state relative-caret-position="1810">
+          <caret line="185" column="25" selection-start-line="185" selection-start-column="25" selection-end-line="185" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

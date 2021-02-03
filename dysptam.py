@@ -177,13 +177,13 @@ if __name__ == '__main__':
                 else:
                     c = dseg.dyn_seg(frame,iml)
 
-                featureld = ImageFeature(iml, params)
-                featurerd = ImageFeature(imr, params)
+                featurel = ImageFeature(iml, params)
+                featurer = ImageFeature(imr, params)
 
-                td = Thread(target=featurerd.extract)
-                td.start()
-                featureld.extract()
-                td.join()
+                t = Thread(target=featurer.extract)
+                t.start()
+                featurel.extract()
+                t.join()
 
                 if i:
                     lm = c

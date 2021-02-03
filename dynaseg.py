@@ -20,7 +20,7 @@ class DynaSeg():
         # self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
-        self.IOU_thd = 0.2
+        self.IOU_thd = 0.5
         self.dyn_thd = 0.8
 
 
@@ -63,7 +63,7 @@ class DynaSeg():
         points = cv.reprojectImageTo3D(disp, self.Q)
         return points
 
-    def track_obj(self, mask):
+    def track_obj(self, mask, idx):
         n = len(self.obj)
         max_IOU = 0
         ci = n
@@ -73,9 +73,11 @@ class DynaSeg():
                 max_IOU = cIOU
                 ci = i
         if ci == n:
-            self.obj.append([mask, 1, 0])
+            self.obj.append([mask.astype(np.bool), 1, 0, idx])
         else:
+            self.obj[ci][0] = mask.astype(np.bool)
             self.obj[ci][1] += 1
+            self.obj[ci][3] = idx
         return ci
 
     def projection(self,frame, frame_gray):
@@ -109,7 +111,14 @@ class DynaSeg():
         self.p1 = p1
         return error, imgpts, P
 
-    def dyn_seg_rec(self,frame,iml):
+    def dyn_seg_rec(self, frame, iml, idx):
+        '''
+        dynamic segmentation based on projection error and object recording
+        :param frame: original sptam frame after tracking
+        :param iml: left image
+        :return:
+        c: dynamic segmentation of iml
+        '''
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
         error, imgpts, P = self.projection(frame, frame_gray)
 
@@ -120,6 +129,12 @@ class DynaSeg():
             if imgpts[i][0] > 900:
                 merror[i] = max(merror[i] - 325, 0)
         ge = merror > np.median(error)
+
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        masks = top.get_field("mask").numpy()
+
         nobj = len(self.obj)
         res = [True] * nobj
         for i in range(nobj):
@@ -131,27 +146,26 @@ class DynaSeg():
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
                     nm[x, y] = 1
-            if np.sum(nm) < 900:
+            if np.sum(nm) < 500:
                 res[i] = False
             else:
-                nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-                self.obj[i][0] = nm.astype
-        self.obj = np.array(self.obj, dtype=object)
+                nm = cv.dilate(nm, self.kernel)
+                nm = cv.erode(nm, self.kernel)
+                self.obj[i][0] = nm.astype(np.bool)
+
         self.obj = list(self.obj[res])
-
-        image = iml.astype(np.uint8)
-        prediction = self.coco.compute_prediction(image)
-        top = self.coco.select_top_predictions(prediction)
-        masks = top.get_field("mask").numpy()
-
         c = np.zeros((self.h, self.w))
         n = len(masks)
+        nobj = len(self.obj)
+        cnd = [True] * nobj
         for i in range(n):
             mask = masks[i].squeeze()
             mask = mask.astype(np.float64)
             mask_dil = cv.dilate(mask, self.kernel)
-            ci = self.track_obj(mask_dil)
-            self.obj[ci][0] = mask_dil.astype(np.bool)
+            ci = self.track_obj(mask_dil, idx)
+            if ci == nobj:
+                cnd.append(True)
+                nobj += 1
             ao = 0
             co = 0
             for i in range(len(error)):
@@ -163,15 +177,26 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-        for obj in self.obj:
-            if obj[2] / obj[1] >= self.dyn_thd or obj[2] > 3:
-                c[obj[0]] = 255
+                    cnd[ci] = False
+
+        nobj = len(self.obj)
+        res = [True] * nobj
+        print('num of objs', nobj)
+        for i in range(nobj):
+            if idx - self.obj[i][3] > 10:
+                res[i] = False
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
+                c[self.obj[i][0]] = 255
+            elif cnd[i]:
+                self.obj[i][2] = max(0, self.obj[i][2] - 0.5)
+        self.obj = np.array(self.obj, dtype=object)
+        self.obj = self.obj[res]
         self.old_gray = frame_gray.copy()
         return c
 
-    def dyn_seg(self, frame, iml): #ori dyn_seg 1
+    def dyn_seg(self, frame, iml):  # ori dyn_seg 1
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error,imgpts, P = self.projection(frame,frame_gray)
+        error, imgpts, P = self.projection(frame, frame_gray)
         merror = np.array(error)
         for i in range(len(error)):
             if imgpts[i][0] < 400:
@@ -204,15 +229,6 @@ class DynaSeg():
                     c[mask_dil.astype(np.bool)] = 255
         self.old_gray = frame_gray.copy()
         return c
-
-
-
-
-
-
-
-
-
 
 
 def Rt_to_tran(tfm):

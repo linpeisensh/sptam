@@ -19,7 +19,7 @@ class DynaSeg():
         self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
         self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
-        self.obj = []
+        self.obj = np.array([])
         self.IOU_thd = 0.1
         self.dyn_thd = 0.8
 
@@ -63,7 +63,7 @@ class DynaSeg():
         points = cv.reprojectImageTo3D(disp, self.Q)
         return points
 
-    def track_obj(self, mask):
+    def track_obj(self, mask, idx):
         n = len(self.obj)
         max_IOU = 0
         ci = n
@@ -73,9 +73,11 @@ class DynaSeg():
                 max_IOU = cIOU
                 ci = i
         if ci == n:
-            self.obj.append([mask, 1, 0])
+            self.obj.append([mask, 1, 0, idx])
         else:
+            self.obj[ci][0] = mask.astype(np.bool)
             self.obj[ci][1] += 1
+            self.obj[ci][3] = idx
         return ci
 
     def projection(self,frame, frame_gray):
@@ -176,7 +178,7 @@ class DynaSeg():
     #     self.old_gray = frame_gray.copy()
     #     return c
 
-    def dyn_seg_rec(self, frame, iml):
+    def dyn_seg_rec(self, frame, iml, idx):
         '''
         dynamic segmentation based on projection error and object recording
         :param frame: original sptam frame after tracking
@@ -206,7 +208,7 @@ class DynaSeg():
             cm = np.where(self.obj[i][0]==True)
             cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
             nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0])
+            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
             for nmp in nmps:
                 x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
@@ -214,12 +216,9 @@ class DynaSeg():
             if np.sum(nm) < 500:
                 res[i] = False
             else:
-                nm  = nm.astype(np.float64)
                 nm = cv.dilate(nm, self.kernel)
-                nm = nm.astype(np.float64)
                 nm = cv.erode(nm, self.kernel)
                 self.obj[i][0] = nm.astype(np.bool)
-        self.obj = np.array(self.obj,dtype=object)
         self.obj = list(self.obj[res])
         c = np.zeros((self.h, self.w))
         n = len(masks)
@@ -227,8 +226,7 @@ class DynaSeg():
             mask = masks[i].squeeze()
             mask = mask.astype(np.float64)
             mask_dil =  cv.dilate(mask, self.kernel)
-            ci = self.track_obj(mask_dil)
-            self.obj[ci][0] = mask_dil.astype(np.bool)
+            ci = self.track_obj(mask_dil,idx)
             ao = 0
             co = 0
             for i in range(len(error)):
@@ -240,9 +238,16 @@ class DynaSeg():
             if ao > 1:
                 if co / ao > 0.5:
                     self.obj[ci][2] += 1
-        for obj in self.obj:
-            if obj[2] / obj[1]  >= self.dyn_thd: # c1  or obj[2]>3
-                c[obj[0]] = 255
+        nobj = len(self.obj)
+        res = [True] * nobj
+        print('num of objs', nobj)
+        for i in range(nobj):
+            if idx - self.obj[i][3] > 5:
+                res[i] = False
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
+                c[self.obj[i][0]] = 255
+        self.obj = np.array(self.obj, dtype=object)
+        self.obj = self.obj[res]
         self.old_gray = frame_gray.copy()
         return c
 

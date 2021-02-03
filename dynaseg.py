@@ -20,7 +20,7 @@ class DynaSeg():
         # self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = []
-        self.IOU_thd = 0.5
+        self.IOU_thd = 0.2
         self.dyn_thd = 0.8
 
 
@@ -169,6 +169,41 @@ class DynaSeg():
         self.old_gray = frame_gray.copy()
         return c
 
+    def dyn_seg(self, frame, iml): #ori dyn_seg 1
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        error,imgpts, P = self.projection(frame,frame_gray)
+        merror = np.array(error)
+        for i in range(len(error)):
+            if imgpts[i][0] < 400:
+                merror[i] = max(merror[i] - 15 * 15, 0)
+            if imgpts[i][0] > 900:
+                merror[i] = max(merror[i] - 325, 0)
+        ge = merror > np.median(error)
+
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        masks = top.get_field("mask").numpy()
+
+        c = np.zeros((self.h, self.w))
+        n = len(masks)
+        for i in range(n):
+            mask = masks[i].squeeze()
+            mask = mask.astype(np.float64)
+            mask_dil = cv.dilate(mask, self.kernel)
+            ao = 0
+            co = 0
+            for i in range(len(error)):
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
+                    ao += 1
+                    if ge[i]:
+                        co += 1
+            if ao > 1:
+                if co / ao > 0.5:
+                    c[mask_dil.astype(np.bool)] = 255
+        self.old_gray = frame_gray.copy()
+        return c
 
 
 

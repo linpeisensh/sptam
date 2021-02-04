@@ -183,7 +183,7 @@ class DynaSeg():
         res = [True] * nobj
         print('num of objs', nobj)
         for i in range(nobj):
-            if idx - self.obj[i][3] > 10:
+            if idx - self.obj[i][3] > 1:
                 res[i] = False
             elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
                 c[self.obj[i][0]] = 255

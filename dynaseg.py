@@ -211,13 +211,13 @@ class DynaSeg():
             cmp = np.where(self.obj[i][0]==True)
             nm = np.zeros_like(self.obj[i][0], dtype=np.uint8)
 
-            for i, j in zip(cmp[0], cmp[1]):
-                i,j = round(i), round(j)
-                dj, di = map(round, flow[i, j, :])
-                i += di
-                j += dj
-                if 0 <= i < self.h and 0 <= j < self.w:
-                    nm[i, j] = 1
+            for x,y in zip(cmp[0], cmp[1]):
+                x,y = round(x), round(y)
+                dy, dx = map(round, flow[x, y, :])
+                x += dx
+                y += dy
+                if 0 <= x < self.h and 0 <= y < self.w:
+                    nm[x, y] = 1
             nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
             # cm = np.where(self.obj[i][0]==True)
             # cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)

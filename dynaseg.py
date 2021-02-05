@@ -20,7 +20,7 @@ class DynaSeg():
         self.e_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
         self.obj = np.array([])
-        self.IOU_thd = 0.2
+        self.IOU_thd = 0.15
         self.dyn_thd = 0.8
 
 

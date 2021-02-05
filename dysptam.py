@@ -79,14 +79,6 @@ if __name__ == '__main__':
                      maxLevel=2,
                      criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 
-    fb_params = dict(pyr_scale=0.5,
-                     levels=3,
-                     winsize=3,
-                     iterations=3,
-                     poly_n=5,
-                     poly_sigma=1.2,
-                     flags=0)
-
 
 
     sptam0 = SPTAM(params)
@@ -146,7 +138,7 @@ if __name__ == '__main__':
 
     if n:
         iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
-        dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, fb_params, mtx, dist, dilation)
+        dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
         for i in range(n):
             iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
             imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)

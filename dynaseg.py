@@ -3,7 +3,7 @@ import cv2 as cv
 from copy import deepcopy as dp
 
 class DynaSeg():
-    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,fb_params, mtx,dist,dilation):
+    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params, mtx,dist,dilation):
         self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
@@ -13,7 +13,6 @@ class DynaSeg():
         self.paraml = paraml
 
         self.lk_params = lk_params
-        self.fb_params = fb_params
 
 
         self.mtx = mtx
@@ -207,26 +206,14 @@ class DynaSeg():
         nobj = len(self.obj)
         res = [True] * nobj
         for i in range(nobj):
-            flow = cv.calcOpticalFlowFarneback(self.old_gray, frame_gray, None, **self.fb_params)
-            cmp = np.where(self.obj[i][0]==True)
-            nm = np.zeros_like(self.obj[i][0], dtype=np.uint8)
-
-            for x,y in zip(cmp[0], cmp[1]):
-                x,y = round(x), round(y)
-                dy, dx = map(round, flow[x, y, :])
-                x += dx
-                y += dy
+            cm = np.where(self.obj[i][0]==True)
+            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
+            for nmp in nmps:
+                x, y = round(nmp[1]), round(nmp[0])
                 if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x, y] = 1
-            nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
-            # cm = np.where(self.obj[i][0]==True)
-            # cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
-            # nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            # nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
-            # for nmp in nmps:
-            #     x, y = round(nmp[1]), round(nmp[0])
-            #     if 0 <= x < self.h and 0 <= y < self.w:
-            #         nm[x,y] = 1
+                    nm[x,y] = 1
             if np.sum(nm) < 500:
                 res[i] = False
             else:
@@ -264,7 +251,7 @@ class DynaSeg():
         res = [True] * nobj
         print('num of objs', nobj)
         for i in range(nobj):
-            if idx - self.obj[i][3] != 0:
+            if idx - self.obj[i][3] > 1:
                 res[i] = False
             elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
                 c[self.obj[i][0]] = 255

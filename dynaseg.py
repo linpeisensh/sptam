@@ -3,7 +3,7 @@ import cv2 as cv
 from copy import deepcopy as dp
 
 class DynaSeg():
-    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,mtx,dist,dilation):
+    def __init__(self,iml, coco_demo, feature_params,disp_path,config, paraml,lk_params,fb_params, mtx,dist,dilation):
         self.h, self.w = iml.shape[:2]
         self.coco = coco_demo
         self.feature_params = feature_params
@@ -13,6 +13,8 @@ class DynaSeg():
         self.paraml = paraml
 
         self.lk_params = lk_params
+        self.fb_params = fb_params
+
 
         self.mtx = mtx
         self.dist = dist
@@ -21,7 +23,7 @@ class DynaSeg():
 
         self.obj = np.array([])
         self.IOU_thd = 0.2
-        self.dyn_thd = 0.6
+        self.dyn_thd = 0.8
 
 
     def updata(self,iml, imr, i,k_frame):
@@ -56,11 +58,11 @@ class DynaSeg():
         return trueDisp_left
 
     def get_points(self, i, iml, imr):
-        iml_, imr_ = preprocess(iml,imr)
-        disp = self.stereoMatchSGBM(iml_, imr_)
+        # iml_, imr_ = preprocess(iml,imr)
+        # disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
-        disp[disp == 0] = dis[disp == 0]
-        points = cv.reprojectImageTo3D(disp, self.Q)
+        # disp[disp == 0] = dis[disp == 0]
+        points = cv.reprojectImageTo3D(dis, self.Q)
         return points
 
     def track_obj(self, mask, idx):
@@ -205,14 +207,26 @@ class DynaSeg():
         nobj = len(self.obj)
         res = [True] * nobj
         for i in range(nobj):
-            cm = np.where(self.obj[i][0]==True)
-            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
-            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
-            for nmp in nmps:
-                x, y = round(nmp[1]), round(nmp[0])
-                if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x,y] = 1
+            flow = cv.calcOpticalFlowFarneback(self.old_gray, frame_gray, None, **self.fb_params)
+            cmp = np.where(self.obj[i][0]==True)
+            nm = np.zeros_like(self.obj[i][0], dtype=np.uint8)
+
+            for i, j in zip(cmp[0], cmp[1]):
+                i,j = round(i), round(j)
+                dj, di = map(round, flow[i, j, :])
+                i += di
+                j += dj
+                if 0 <= i < self.h and 0 <= j < self.w:
+                    nm[i, j] = 1
+            nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
+            # cm = np.where(self.obj[i][0]==True)
+            # cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+            # nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+            # nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
+            # for nmp in nmps:
+            #     x, y = round(nmp[1]), round(nmp[0])
+            #     if 0 <= x < self.h and 0 <= y < self.w:
+            #         nm[x,y] = 1
             if np.sum(nm) < 500:
                 res[i] = False
             else:

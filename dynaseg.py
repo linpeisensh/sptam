@@ -122,7 +122,6 @@ class DynaSeg():
             mask = mask.squeeze().astype(np.uint8)
             mask = cv.dilate(mask, self.kernel)
             masks.append(mask)
-        self.masks.append(list(masks))
         res = []
         nc = len(self.obj)
         nm = len(masks)

@@ -112,7 +112,112 @@ class DynaSeg():
         self.p1 = p1
         return error, imgpts, P
 
-    # def dyn_seg_rec(self, frame, iml):
+    def iou(self, iml, idx):
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        omasks = top.get_field("mask").numpy()
+        masks = []
+        for mask in omasks:
+            mask = mask.squeeze().astype(np.uint8)
+            mask = cv.dilate(mask, self.kernel)
+            masks.append(mask)
+        self.masks.append(list(masks))
+        res = []
+        nc = len(self.obj)
+        nm = len(masks)
+        for i in range(nm):
+            for j in range(nc):
+                cIOU = get_IOU(masks[i], self.obj[j][0])
+                res.append((cIOU, j, i))
+        nu_obj = [True] * nc
+        nu_mask = [True] * nm
+        res.sort(key=lambda x: -x[0])
+        for x in res:
+            if nu_obj[x[1]] and nu_mask[x[2]]:
+                if x[0] > self.IOU_thd:
+                    self.obj[x[1]][0] = masks[x[2]].astype(np.bool)
+                    self.obj[x[1]][1] += 1
+                    self.obj[x[1]][3] = idx
+                    nu_obj[x[1]] = False
+                    nu_mask[x[2]] = False
+
+                else:
+                    break
+        for i in range(nm):
+            if nu_mask[i]:
+                self.obj.append([masks[i].astype(np.bool), 1, 0, idx])
+        return
+
+    def dyn_seg_rec(self, frame, iml, idx):
+        '''
+        dynamic segmentation based on projection error and object recording
+        :param frame: original sptam frame after tracking
+        :param iml: left image
+        :return:
+        c: dynamic segmentation of iml
+        '''
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        error, imgpts, P = self.projection(frame, frame_gray)
+
+        merror = np.array(error)
+        for i in range(len(error)):
+            if imgpts[i][0] < 400:
+                merror[i] = max(merror[i] - 15 * 15, 0)
+            if imgpts[i][0] > 900:
+                merror[i] = max(merror[i] - 325, 0)
+        ge = merror > np.median(error)
+
+        nobj = len(self.obj)
+        for i in range(nobj):
+            cm = np.where(self.obj[i][0]==True)
+            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
+            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
+            for nmp in nmps:
+                x, y = round(nmp[1]), round(nmp[0])
+                if 0 <= x < self.h and 0 <= y < self.w:
+                    nm[x,y] = 1
+            nm = cv.dilate(nm, self.kernel)
+            nm = cv.erode(nm, self.kernel)
+            self.obj[i][0] = nm.astype(np.bool)
+
+        self.obj = list(self.obj)
+        c = np.zeros((self.h, self.w))
+        self.iou(iml, idx)
+        nobj = len(self.obj)
+        cnd = [True] * nobj
+        for ci in range(nobj):
+            if self.obj[ci][3] == idx:
+                ao = 0
+                co = 0
+                for i in range(len(error)):
+                    x, y = round(P[i][1]), round(P[i][0])
+                    if 0 <= x < self.h and 0 <= y < self.w and self.obj[ci][0][x, y]:
+                        ao += 1
+                        if ge[i]:
+                            co += 1
+                if ao > 1:
+                    if co / ao > 0.5:
+                        self.obj[ci][2] += 1
+                        cnd[ci] = False
+
+        nobj = len(self.obj)
+        res = [True] * nobj
+        print('num of objs', nobj)
+        for i in range(nobj):
+            if idx - self.obj[i][3] != 0:
+                res[i] = False
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
+                c[self.obj[i][0]] = 255
+            elif cnd[i]:
+                self.obj[i][2] = max(0,self.obj[i][2]-0.5)
+        self.obj = np.array(self.obj, dtype=object)
+        self.obj = self.obj[res]
+        self.old_gray = frame_gray.copy()
+        return c
+
+    # def dyn_seg_rec(self, frame, iml, idx):
     #     '''
     #     dynamic segmentation based on projection error and object recording
     #     :param frame: original sptam frame after tracking
@@ -137,30 +242,36 @@ class DynaSeg():
     #     masks = top.get_field("mask").numpy()
     #
     #     nobj = len(self.obj)
+    #     res = [True] * nobj
     #     for i in range(nobj):
-    #         cm = np.where(self.obj[i][0] == True)
-    #         cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
+    #         cm = np.where(self.obj[i][0]==True)
+    #         cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
     #         nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-    #         nm = np.zeros_like(self.obj[i][0]).astype(np.bool)
+    #         nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
     #         for nmp in nmps:
     #             x, y = round(nmp[1]), round(nmp[0])
     #             if 0 <= x < self.h and 0 <= y < self.w:
-    #                 nm[x, y] = True
-    #         self.obj[i][0] = nm
+    #                 nm[x,y] = 1
+    #         if np.sum(nm) < 500:
+    #             res[i] = False
+    #         else:
+    #             nm = cv.dilate(nm, self.kernel)
+    #             nm = cv.erode(nm, self.kernel)
+    #             self.obj[i][0] = nm.astype(np.bool)
     #
-    #     res = [False] * nobj
+    #     self.obj = list(self.obj[res])
     #     c = np.zeros((self.h, self.w))
     #     n = len(masks)
+    #     nobj = len(self.obj)
+    #     cnd = [True] * nobj
     #     for i in range(n):
     #         mask = masks[i].squeeze()
-    #         ci = self.track_obj(mask)
-    #         if ci < nobj:
-    #             res[ci] = True
-    #         else:
-    #             res += [True]
-    #             nobj += 1
     #         mask = mask.astype(np.float64)
-    #         mask_dil = cv.dilate(mask, self.kernel)
+    #         mask_dil =  cv.dilate(mask, self.kernel)
+    #         ci = self.track_obj(mask_dil,idx)
+    #         if ci == nobj:
+    #             cnd.append(True)
+    #             nobj += 1
     #         ao = 0
     #         co = 0
     #         for i in range(len(error)):
@@ -172,95 +283,22 @@ class DynaSeg():
     #         if ao > 1:
     #             if co / ao > 0.5:
     #                 self.obj[ci][2] += 1
-    #         if self.obj[ci][2] / self.obj[ci][1] >= self.dyn_thd: # c1 or self.obj[ci][2] > 3
-    #             c[mask_dil.astype(np.bool)] = 255
-    #     self.obj = np.array(self.obj,dtype=object)
-    #     self.obj = list(self.obj[res])
+    #                 cnd[ci] = False
+    #
+    #     nobj = len(self.obj)
+    #     res = [True] * nobj
+    #     print('num of objs', nobj)
+    #     for i in range(nobj):
+    #         if idx - self.obj[i][3] != 0:
+    #             res[i] = False
+    #         elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
+    #             c[self.obj[i][0]] = 255
+    #         elif cnd[i]:
+    #             self.obj[i][2] = max(0,self.obj[i][2]-0.5)
+    #     self.obj = np.array(self.obj, dtype=object)
+    #     self.obj = self.obj[res]
     #     self.old_gray = frame_gray.copy()
     #     return c
-
-    def dyn_seg_rec(self, frame, iml, idx):
-        '''
-        dynamic segmentation based on projection error and object recording
-        :param frame: original sptam frame after tracking
-        :param iml: left image
-        :return:
-        c: dynamic segmentation of iml
-        '''
-        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error, imgpts, P = self.projection(frame, frame_gray)
-
-        merror = np.array(error)
-        for i in range(len(error)):
-            if imgpts[i][0] < 400:
-                merror[i] = max(merror[i] - 15 * 15, 0)
-            if imgpts[i][0] > 900:
-                merror[i] = max(merror[i] - 325, 0)
-        ge = merror > np.median(error)
-
-        image = iml.astype(np.uint8)
-        prediction = self.coco.compute_prediction(image)
-        top = self.coco.select_top_predictions(prediction)
-        masks = top.get_field("mask").numpy()
-
-        nobj = len(self.obj)
-        res = [True] * nobj
-        for i in range(nobj):
-            cm = np.where(self.obj[i][0]==True)
-            cmps = np.array(list(zip(cm[1],cm[0]))).astype(np.float32)
-            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
-            nm = np.zeros_like(self.obj[i][0],dtype=np.uint8)
-            for nmp in nmps:
-                x, y = round(nmp[1]), round(nmp[0])
-                if 0 <= x < self.h and 0 <= y < self.w:
-                    nm[x,y] = 1
-            if np.sum(nm) < 500:
-                res[i] = False
-            else:
-                nm = cv.dilate(nm, self.kernel)
-                nm = cv.erode(nm, self.kernel)
-                self.obj[i][0] = nm.astype(np.bool)
-
-        self.obj = list(self.obj[res])
-        c = np.zeros((self.h, self.w))
-        n = len(masks)
-        nobj = len(self.obj)
-        cnd = [True] * nobj
-        for i in range(n):
-            mask = masks[i].squeeze()
-            mask = mask.astype(np.float64)
-            mask_dil =  cv.dilate(mask, self.kernel)
-            ci = self.track_obj(mask_dil,idx)
-            if ci == nobj:
-                cnd.append(True)
-                nobj += 1
-            ao = 0
-            co = 0
-            for i in range(len(error)):
-                x, y = round(P[i][1]), round(P[i][0])
-                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
-                    ao += 1
-                    if ge[i]:
-                        co += 1
-            if ao > 1:
-                if co / ao > 0.5:
-                    self.obj[ci][2] += 1
-                    cnd[ci] = False
-
-        nobj = len(self.obj)
-        res = [True] * nobj
-        print('num of objs', nobj)
-        for i in range(nobj):
-            if idx - self.obj[i][3] > 1:
-                res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
-                c[self.obj[i][0]] = 255
-            elif cnd[i]:
-                self.obj[i][2] = max(0,self.obj[i][2]-0.5)
-        self.obj = np.array(self.obj, dtype=object)
-        self.obj = self.obj[res]
-        self.old_gray = frame_gray.copy()
-        return c
 
     def dyn_seg(self, frame, iml): #ori dyn_seg 1
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)

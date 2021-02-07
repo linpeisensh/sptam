@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="499">
-              <caret line="197" column="70" lean-forward="true" selection-start-line="197" selection-start-column="70" selection-end-line="197" selection-end-column="70" />
+            <state relative-caret-position="1884">
+              <caret line="140" column="42" selection-start-line="140" selection-start-column="42" selection-end-line="140" selection-end-column="42" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+            <state relative-caret-position="127">
+              <caret line="175" column="40" lean-forward="true" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="40" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -48,7 +48,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_points</find>
       <find>stereoMatchSGBM</find>
       <find>print</find>
       <find>get_instance_mask</find>
@@ -78,6 +77,7 @@
       <find>sptam1</find>
       <find>preprocess</find>
       <find>maskofkp</find>
+      <find>self.masks</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -112,8 +112,8 @@
         <option value="$PROJECT_DIR$/dynaseg0.py" />
         <option value="$PROJECT_DIR$/run.py" />
         <option value="$PROJECT_DIR$/msptam.py" />
-        <option value="$PROJECT_DIR$/dynaseg.py" />
         <option value="$PROJECT_DIR$/dysptam.py" />
+        <option value="$PROJECT_DIR$/dynaseg.py" />
       </list>
     </option>
   </component>
@@ -201,12 +201,12 @@
       <updated>1610734263471</updated>
       <workItem from="1610734265042" duration="161270000" />
       <workItem from="1612682999814" duration="694000" />
-      <workItem from="1612690880483" duration="3051000" />
+      <workItem from="1612690880483" duration="5172000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="165015000" />
+    <option name="totallyTimeSpent" value="167136000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -327,8 +327,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="499">
-          <caret line="197" column="70" lean-forward="true" selection-start-line="197" selection-start-column="70" selection-end-line="197" selection-end-column="70" />
+        <state relative-caret-position="1884">
+          <caret line="140" column="42" selection-start-line="140" selection-start-column="42" selection-end-line="140" selection-end-column="42" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -337,8 +337,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="127">
+          <caret line="175" column="40" lean-forward="true" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="40" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -261,14 +261,14 @@ def Rt_to_tran(tfm):
   return res
 
 
-def preprocess(img1, img2):
-    im1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
-    im2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
-
-    im1 = cv.equalizeHist(im1)
-    im2 = cv.equalizeHist(im2)
-
-    return im1, im2
+# def preprocess(img1, img2):
+#     im1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+#     im2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
+#
+#     im1 = cv.equalizeHist(im1)
+#     im2 = cv.equalizeHist(im2)
+#
+#     return im1, im2
 
 def get_IOU(m1,m2):
   I = np.sum(np.logical_and(m1,m2))

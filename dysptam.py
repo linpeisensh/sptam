@@ -139,7 +139,7 @@ if __name__ == '__main__':
     if n:
         iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
         dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
-        for i in range(n):
+        for i in range(500):
             iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
             imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
             # original
@@ -198,6 +198,7 @@ if __name__ == '__main__':
                     featurerd.descriptors = featurerd.descriptors[frm]
                     featureld.unmatched = featureld.unmatched[flm]
                     featurerd.unmatched = featurerd.unmatched[frm]
+                    cv.imwrite('dym/{}.png'.format(i),c)
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
 

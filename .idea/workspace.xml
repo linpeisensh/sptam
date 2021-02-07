@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1884">
-              <caret line="140" column="42" selection-start-line="140" selection-start-column="42" selection-end-line="140" selection-end-column="42" />
+            <state relative-caret-position="307">
+              <caret line="201" lean-forward="true" selection-start-line="201" selection-end-line="201" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="127">
-              <caret line="175" column="40" lean-forward="true" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="40" />
+            <state relative-caret-position="317">
+              <caret line="215" lean-forward="true" selection-start-line="215" selection-end-line="215" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -76,8 +76,8 @@
       <find>cam</find>
       <find>sptam1</find>
       <find>preprocess</find>
-      <find>maskofkp</find>
       <find>self.masks</find>
+      <find>maskofkp</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -201,12 +201,12 @@
       <updated>1610734263471</updated>
       <workItem from="1610734265042" duration="161270000" />
       <workItem from="1612682999814" duration="694000" />
-      <workItem from="1612690880483" duration="5172000" />
+      <workItem from="1612690880483" duration="5959000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="167136000" />
+    <option name="totallyTimeSpent" value="167923000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -327,8 +327,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1884">
-          <caret line="140" column="42" selection-start-line="140" selection-start-column="42" selection-end-line="140" selection-end-column="42" />
+        <state relative-caret-position="307">
+          <caret line="201" lean-forward="true" selection-start-line="201" selection-end-line="201" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -337,8 +337,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="127">
-          <caret line="175" column="40" lean-forward="true" selection-start-line="175" selection-start-column="40" selection-end-line="175" selection-end-column="40" />
+        <state relative-caret-position="317">
+          <caret line="215" lean-forward="true" selection-start-line="215" selection-end-line="215" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

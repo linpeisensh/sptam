@@ -166,7 +166,6 @@ class DynaSeg():
         nu_obj = [True] * nc
         nu_mask = [True] * nm
         res.sort(key=lambda x: -x[0])
-        cobj = [0] * nc
         for x in res:
             if nu_obj[x[1]] and nu_mask[x[2]]:
                 if x[0] > self.IOU_thd:
@@ -175,14 +174,11 @@ class DynaSeg():
                     self.obj[x[1]][3] = idx
                     nu_obj[x[1]] = False
                     nu_mask[x[2]] = False
-                    cobj[x[1]] += 1
                 else:
                     break
         for i in range(nm):
             if nu_mask[i]:
                 self.obj.append([masks[i].astype(np.bool), 1, 0, idx])
-                cobj.append(1)
-        print(cobj)
         return
 
     def dyn_seg_rec(self, frame, iml, idx):

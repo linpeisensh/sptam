@@ -57,7 +57,7 @@ class DynaSeg():
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
-        points = cv.reprojectImageTo3D(disp, self.Q)
+        points = cv.reprojectImageTo3D(dis, self.Q)
         return points
 
     def track_obj(self, mask, idx):

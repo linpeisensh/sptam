@@ -187,17 +187,17 @@ if __name__ == '__main__':
 
                 if i:
                     lm = c
-                    rm = c
+                    # rm = c
                     ofl = np.array(featureld.keypoints)
                     ofr = np.array(featurerd.keypoints)
                     flm = maskofkp(ofl, lm)
-                    frm = maskofkp(ofr, rm)
+                    # frm = maskofkp(ofr, rm)
                     featureld.keypoints = list(ofl[flm])
-                    featurerd.keypoints = list(ofr[frm])
+                    featurerd.keypoints = list(ofr[flm])
                     featureld.descriptors = featureld.descriptors[flm]
-                    featurerd.descriptors = featurerd.descriptors[frm]
+                    featurerd.descriptors = featurerd.descriptors[flm]
                     featureld.unmatched = featureld.unmatched[flm]
-                    featurerd.unmatched = featurerd.unmatched[frm]
+                    featurerd.unmatched = featurerd.unmatched[flm]
                     # cv.imwrite('dym/{}.png'.format(i),c)
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)

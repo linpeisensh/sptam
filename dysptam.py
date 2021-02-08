@@ -83,7 +83,6 @@ if __name__ == '__main__':
 
     sptam0 = SPTAM(params)
     sptam1 = SPTAM(params)
-    sptam2 = SPTAM(params)
 
     config = stereoCamera()
     mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
@@ -103,20 +102,10 @@ if __name__ == '__main__':
         dataset.cam.width, dataset.cam.height,
         params.frustum_near, params.frustum_far,
         dataset.cam.baseline)
-    cam1 = Camera(
-        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
-        dataset.cam.width, dataset.cam.height,
-        params.frustum_near, params.frustum_far,
-        dataset.cam.baseline)
-    cam2 = Camera(
-        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
-        dataset.cam.width, dataset.cam.height,
-        params.frustum_near, params.frustum_far,
-        dataset.cam.baseline)
+    print(dataset.cam.fx)
 
     otrajectory = []
     atrajectory = []
-    ratrajectory = []
     n = len(dataset)
     print('sequence {}: {} images'.format(args.path[-2:],n))
 
@@ -180,13 +169,13 @@ if __name__ == '__main__':
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append((cur_tra))
 
-                # dyn
+                # dyn + rec
                 if i % 5 == 0:
                     if i:
-                        c = dseg.dyn_seg(frame, iml)
-                    dseg.updata(iml, imr, i, frame)
+                        c = dseg.dyn_seg_rec(frame,iml,i)
+                    dseg.updata(iml,imr,i,frame)
                 else:
-                    c = dseg.dyn_seg(frame, iml)
+                    c = dseg.dyn_seg_rec(frame,iml,i)
 
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
@@ -211,61 +200,18 @@ if __name__ == '__main__':
                     featurerd.unmatched = featurerd.unmatched[frm]
                     # cv.imwrite('dym/{}.png'.format(i),c)
 
-                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam1, timestamp=timestamp)
+                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
 
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)
                 else:
                     sptam1.track(aframe)
 
+
                 R = aframe.pose.orientation().matrix()
                 t = aframe.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 atrajectory.append((cur_tra))
-
-                # dyn + rec
-                if i % 5 == 0:
-                    if i:
-                        c = dseg.dyn_seg_rec(frame,iml,i)
-                    dseg.updata(iml,imr,i,frame)
-                else:
-                    c = dseg.dyn_seg_rec(frame,iml,i)
-
-                featureldr = ImageFeature(iml, params)
-                featurerdr = ImageFeature(imr, params)
-
-                tdr = Thread(target=featurerdr.extract)
-                tdr.start()
-                featureldr.extract()
-                tdr.join()
-
-                if i:
-                    lm = c
-                    rm = c
-                    ofl = np.array(featureldr.keypoints)
-                    ofr = np.array(featurerdr.keypoints)
-                    flm = maskofkp(ofl, lm)
-                    frm = maskofkp(ofr, rm)
-                    featureldr.keypoints = list(ofl[flm])
-                    featurerdr.keypoints = list(ofr[frm])
-                    featureldr.descriptors = featureldr.descriptors[flm]
-                    featurerdr.descriptors = featurerdr.descriptors[frm]
-                    featureldr.unmatched = featureldr.unmatched[flm]
-                    featurerdr.unmatched = featurerdr.unmatched[frm]
-                    # cv.imwrite('dym/{}.png'.format(i),c)
-
-                raframe = StereoFrame(i, g2o.Isometry3d(), featureldr, featurerdr, cam2, timestamp=timestamp)
-
-                if not sptam2.is_initialized():
-                    sptam2.initialize(raframe)
-                else:
-                    sptam2.track(raframe)
-
-
-                R = raframe.pose.orientation().matrix()
-                t = raframe.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                ratrajectory.append((cur_tra))
 
 
 
@@ -275,17 +221,13 @@ if __name__ == '__main__':
             except Exception as e:
                 traceback.print_exc()
                 time.sleep(2)
-                print('error in {} frame'.format(i))
-                break
 
 
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
-        save_trajectory(ratrajectory, 'ra{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
         sptam0.stop()
         sptam1.stop()
-        sptam2.stop()
         if visualize:
             viewer.stop()
     else:

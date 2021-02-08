@@ -41,11 +41,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="994">
               <caret line="219" column="35" lean-forward="true" selection-start-line="219" selection-start-column="35" selection-end-line="219" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/msptam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="519">
+              <caret line="620" column="21" selection-start-line="620" selection-start-column="21" selection-end-line="620" selection-end-column="21" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -122,10 +134,10 @@
         <option value="$PROJECT_DIR$/sptam.py" />
         <option value="$PROJECT_DIR$/dataset.py" />
         <option value="$PROJECT_DIR$/params.py" />
-        <option value="$PROJECT_DIR$/msptam.py" />
         <option value="$PROJECT_DIR$/script.py" />
         <option value="$PROJECT_DIR$/dysptam.py" />
         <option value="$PROJECT_DIR$/dynaseg.py" />
+        <option value="$PROJECT_DIR$/msptam.py" />
       </list>
     </option>
   </component>
@@ -237,18 +249,18 @@
       <workItem from="1610734265042" duration="106962000" />
       <workItem from="1612115824962" duration="33911000" />
       <workItem from="1612682905301" duration="3737000" />
-      <workItem from="1612772333725" duration="960000" />
+      <workItem from="1612772333725" duration="1563000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="145570000" />
+    <option name="totallyTimeSpent" value="146173000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15273556" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15273556" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -355,16 +367,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/msptam.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="461" lean-forward="true" selection-start-line="461" selection-end-line="461" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -379,6 +381,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="994">
           <caret line="219" column="35" lean-forward="true" selection-start-line="219" selection-start-column="35" selection-end-line="219" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/msptam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="519">
+          <caret line="620" column="21" selection-start-line="620" selection-start-column="21" selection-end-line="620" selection-end-column="21" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="371">
-              <caret line="194" column="56" lean-forward="true" selection-start-line="194" selection-start-column="56" selection-end-line="194" selection-end-column="56" />
+            <state relative-caret-position="253">
+              <caret line="188" column="26" selection-start-line="188" selection-start-column="26" selection-end-line="188" selection-end-column="26" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -37,6 +37,18 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/msptam.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="309">
+              <caret line="458" column="26" lean-forward="true" selection-start-line="458" selection-start-column="26" selection-end-line="458" selection-end-column="26" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -48,11 +60,8 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_instance_mask</find>
-      <find>obj</find>
       <find>dseg</find>
       <find>ratrajectory</find>
-      <find>atrajectory</find>
       <find>object</find>
       <find>inf</find>
       <find>tracker</find>
@@ -70,7 +79,6 @@
       <find>tracking</find>
       <find>filter_points</find>
       <find>featurel</find>
-      <find>sptam1</find>
       <find>preprocess</find>
       <find>self.masks</find>
       <find>maskofkp</find>
@@ -78,6 +86,10 @@
       <find>aframe</find>
       <find>td</find>
       <find>cam</find>
+      <find>dilation</find>
+      <find>kernel</find>
+      <find>sptam1</find>
+      <find>atrajectory</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -116,8 +128,8 @@
         <option value="$PROJECT_DIR$/params.py" />
         <option value="$PROJECT_DIR$/dynaseg0.py" />
         <option value="$PROJECT_DIR$/run.py" />
-        <option value="$PROJECT_DIR$/msptam.py" />
         <option value="$PROJECT_DIR$/dynaseg.py" />
+        <option value="$PROJECT_DIR$/msptam.py" />
         <option value="$PROJECT_DIR$/dysptam.py" />
       </list>
     </option>
@@ -206,18 +218,18 @@
       <updated>1610734263471</updated>
       <workItem from="1610734265042" duration="161270000" />
       <workItem from="1612682999814" duration="694000" />
-      <workItem from="1612690880483" duration="11328000" />
+      <workItem from="1612690880483" duration="13864000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="173292000" />
+    <option name="totallyTimeSpent" value="175828000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15045592" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15045592" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -313,16 +325,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/msptam.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-209">
-          <caret line="190" column="21" selection-start-line="190" selection-start-column="8" selection-end-line="190" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/components.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-328">
@@ -340,10 +342,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/msptam.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="458" column="26" lean-forward="true" selection-start-line="458" selection-start-column="26" selection-end-line="458" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="371">
-          <caret line="194" column="56" lean-forward="true" selection-start-line="194" selection-start-column="56" selection-end-line="194" selection-end-column="56" />
+        <state relative-caret-position="253">
+          <caret line="188" column="26" selection-start-line="188" selection-start-column="26" selection-end-line="188" selection-end-column="26" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

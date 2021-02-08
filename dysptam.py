@@ -172,34 +172,35 @@ if __name__ == '__main__':
                 # dyn
                 if i % 5 == 0:
                     if i:
-                        c = dseg.dyn_seg(frame,iml) # c = dseg.dyn_seg_rec(frame,iml,i)
+                        c = dseg.dyn_seg(frame,iml)
                     dseg.updata(iml,imr,i,frame)
                 else:
-                    c = dseg.dyn_seg(frame,iml) # c = dseg.dyn_seg_rec(frame,iml,i)
+                    c = dseg.dyn_seg(frame,iml)
 
-                featurel = ImageFeature(iml, params)
-                featurer = ImageFeature(imr, params)
+                featureld = ImageFeature(iml, params)
+                featurerd = ImageFeature(imr, params)
 
-                t = Thread(target=featurer.extract)
-                t.start()
-                featurel.extract()
-                t.join()
+                td = Thread(target=featurerd.extract)
+                td.start()
+                featureld.extract()
+                td.join()
 
                 if i:
                     lm = c
                     rm = c
-                    ofl = np.array(featurel.keypoints)
-                    ofr = np.array(featurer.keypoints)
+                    ofl = np.array(featureld.keypoints)
+                    ofr = np.array(featurerd.keypoints)
                     flm = maskofkp(ofl, lm)
                     frm = maskofkp(ofr, rm)
-                    featurel.keypoints = list(ofl[flm])
-                    featurer.keypoints = list(ofr[frm])
-                    featurel.descriptors = featurel.descriptors[flm]
-                    featurer.descriptors = featurer.descriptors[frm]
-                    featurel.unmatched = featurel.unmatched[flm]
-                    featurer.unmatched = featurer.unmatched[frm]
+                    featureld.keypoints = list(ofl[flm])
+                    featurerd.keypoints = list(ofr[frm])
+                    featureld.descriptors = featureld.descriptors[flm]
+                    featurerd.descriptors = featurerd.descriptors[frm]
+                    featureld.unmatched = featureld.unmatched[flm]
+                    featurerd.unmatched = featurerd.unmatched[frm]
+                    # cv.imwrite('dym/{}.png'.format(i),c)
 
-                aframe = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
 
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)

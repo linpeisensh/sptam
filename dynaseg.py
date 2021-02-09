@@ -21,7 +21,7 @@ class DynaSeg():
 
         self.obj = np.array([])
         self.IOU_thd = 0.0
-        self.dyn_thd = 0.8
+        self.dyn_thd = 0.6
 
         self.a = 0
         self.t = 0
@@ -302,12 +302,14 @@ class DynaSeg():
             cc.append(list(self.obj[i]))
             if idx - self.obj[i][3] != 0:
                 res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 6:  #
                 c[self.obj[i][0]] = 255
             elif cnd[i]:
                 self.obj[i][2] = max(0, self.obj[i][2] - 0.5)
         self.obj = np.array(self.obj, dtype=object)
         self.obj = self.obj[res]
+        for obj in self.obj:
+            print('a: {}, d: {}'.format(obj[1],obj[2]))
         self.old_gray = frame_gray.copy()
         return c
 

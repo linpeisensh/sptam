@@ -86,8 +86,8 @@ class KITTIOdometry(object):   # without lidar
     def __init__(self, path):
         Cam = namedtuple('cam', 'fx fy cx cy width height baseline')
         cam00_02 = Cam(718.856, 718.856, 607.1928, 185.2157, 1241, 376, 0.5371657)
-        cam03 = Cam(721.5377, 721.5377, 609.5593, 172.854, 1241, 376, 0.53715)
-        cam04_12 = Cam(707.0912, 707.0912, 601.8873, 183.1104, 1241, 376, 0.53715)
+        cam03 = Cam(721.5377, 721.5377, 609.5593, 172.854, 1242, 375, 0.53715)
+        cam04_12 = Cam(707.0912, 707.0912, 601.8873, 183.1104, 1226, 370, 0.53715)
 
         path = os.path.expanduser(path)
         self.left, self.right, self.timestamps = self.load_images(path)

@@ -169,13 +169,13 @@ if __name__ == '__main__':
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append((cur_tra))
 
-                # dyn
+                # dyn + rec
                 if i % 5 == 0:
                     if i:
-                        c = dseg.dyn_seg(frame,iml)
+                        c = dseg.dyn_seg_rec(frame,iml,i)
                     dseg.updata(iml,imr,i,frame)
                 else:
-                    c = dseg.dyn_seg(frame,iml)
+                    c = dseg.dyn_seg_rec(frame,iml,i)
 
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
@@ -187,18 +187,18 @@ if __name__ == '__main__':
 
                 if i:
                     lm = c
-                    rm = c
                     ofl = np.array(featureld.keypoints)
-                    ofr = np.array(featurerd.keypoints)
                     flm = maskofkp(ofl, lm)
-                    frm = maskofkp(ofr, rm)
                     featureld.keypoints = list(ofl[flm])
-                    featurerd.keypoints = list(ofr[frm])
                     featureld.descriptors = featureld.descriptors[flm]
-                    featurerd.descriptors = featurerd.descriptors[frm]
                     featureld.unmatched = featureld.unmatched[flm]
+                    rm = c
+                    ofr = np.array(featurerd.keypoints)
+                    frm = maskofkp(ofr, rm)
+                    featurerd.keypoints = list(ofr[frm])
+                    featurerd.descriptors = featurerd.descriptors[frm]
                     featurerd.unmatched = featurerd.unmatched[frm]
-                    # cv.imwrite('dym/{}.png'.format(i),c)
+                    cv.imwrite('dym/{}.png'.format(i),c)
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
 
@@ -226,6 +226,7 @@ if __name__ == '__main__':
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
+        print('tracking rate: {}'.format(dseg.t/dseg.a))
         sptam0.stop()
         sptam1.stop()
         if visualize:

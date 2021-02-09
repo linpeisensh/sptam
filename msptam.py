@@ -559,7 +559,7 @@ if __name__ == '__main__':
         t = frame.pose.position()
         cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
         otrajectory.append((cur_tra))
-        
+
         # if i % 5 == 0:
         #     if i:
         #         c, p1, old_gray = dyn_seg(frame, old_gray, p1, ast, otfm, points_3d,iml,lk_params,mtx,dist,kernel,coco_demo)

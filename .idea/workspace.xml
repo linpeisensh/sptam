@@ -56,8 +56,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/msptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="519">
-              <caret line="620" column="21" selection-start-line="620" selection-start-column="21" selection-end-line="620" selection-end-column="21" />
+            <state relative-caret-position="138">
+              <caret line="561" selection-start-line="561" selection-end-line="561" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -99,13 +99,13 @@
       <find>object</find>
       <find>inf</find>
       <find>tracker</find>
-      <find>otrajectory</find>
       <find>e_kernel</find>
       <find>self.old_gray</find>
       <find>atraj</find>
       <find>dyn_seg_rec</find>
       <find>track_obj</find>
       <find>dseg</find>
+      <find>otrajectory</find>
     </findStrings>
     <replaceStrings>
       <replace>self.coco</replace>
@@ -249,15 +249,15 @@
       <workItem from="1610734265042" duration="106962000" />
       <workItem from="1612115824962" duration="33911000" />
       <workItem from="1612682905301" duration="3737000" />
-      <workItem from="1612772333725" duration="1563000" />
+      <workItem from="1612772333725" duration="2172000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="146173000" />
+    <option name="totallyTimeSpent" value="146782000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
+    <frame x="-8" y="-8" width="1376" height="744" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15273556" />
@@ -389,8 +389,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/msptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="519">
-          <caret line="620" column="21" selection-start-line="620" selection-start-column="21" selection-end-line="620" selection-end-column="21" />
+        <state relative-caret-position="138">
+          <caret line="561" selection-start-line="561" selection-end-line="561" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

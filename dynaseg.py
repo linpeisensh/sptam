@@ -21,7 +21,10 @@ class DynaSeg():
 
         self.obj = np.array([])
         self.IOU_thd = 0.0
-        self.dyn_thd = 0.6
+        self.dyn_thd = 0.9
+
+        self.a = 0
+        self.t = 0
 
     def updata(self, iml, imr, i, k_frame):
         self.old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
@@ -172,13 +175,36 @@ class DynaSeg():
                     self.obj[x[1]][0] = masks[x[2]].astype(np.bool)
                     self.obj[x[1]][1] += 1
                     self.obj[x[1]][3] = idx
+                    self.obj[x[1]][4] = x[1]
                     nu_obj[x[1]] = False
                     nu_mask[x[2]] = False
                 else:
                     break
         for i in range(nm):
             if nu_mask[i]:
-                self.obj.append([masks[i].astype(np.bool), 1, 0, idx])
+                self.obj.append([masks[i].astype(np.bool), 1, 0, idx,-1])
+        if idx == 1:
+            self.oo = list(self.obj)
+        else:
+            no = self.obj
+            nn = len(no)
+            self.a += nn
+            for j in range(nn):
+                if no[j][4] != -1:
+                    self.t += 1
+                else:
+                    f = 1
+                    for obj in self.oo:
+                        if np.sum(obj[0]):
+                            if 0.7 < np.sum(no[j][0]) / np.sum(obj[0]) < 1.3 and get_IOU(no[j][0], obj[0]):
+                                f = 0
+                                break
+                        else:
+                            f = 0
+                            break
+                    if f:
+                        self.t += 1
+                    self.oo = list(self.obj)
         return
 
     def dyn_seg_rec(self, frame, iml, idx):

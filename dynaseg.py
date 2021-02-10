@@ -60,7 +60,7 @@ class DynaSeg():
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
-        points = cv.reprojectImageTo3D(disp, self.Q)
+        points = cv.reprojectImageTo3D(dis, self.Q)
         return points
 
     def track_obj(self, mask, idx):
@@ -191,7 +191,8 @@ class DynaSeg():
             self.a += nn
             for j in range(nn):
                 if no[j][4] != -1:
-                    self.t += 1
+                    if 0.7 < np.sum(no[j][0]) / np.sum(self.oo[no[j][4]][0]) < 1.3:
+                        self.t += 1
                 else:
                     f = 1
                     for obj in self.oo:
@@ -302,7 +303,7 @@ class DynaSeg():
             cc.append(list(self.obj[i]))
             if idx - self.obj[i][3] != 0:
                 res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 9:  #
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 5:  #
                 c[self.obj[i][0]] = 255
             elif cnd[i]:
                 self.obj[i][2] = max(0, self.obj[i][2] - 0.5)

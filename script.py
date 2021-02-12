@@ -1,6 +1,2 @@
-a = 0
-while a < 10:
+for a in range(0,31,5):
     print(a)
-    a += 1
-else:
-    print('end')

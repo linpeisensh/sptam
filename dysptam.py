@@ -5,6 +5,8 @@ import traceback
 import g2o
 import argparse
 from threading import Thread
+import os
+import shutil
 
 from dynaseg import DynaSeg
 from msptam import SPTAM, stereoCamera
@@ -49,7 +51,6 @@ def save_trajectory(trajectory, filename):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--no-viz', action='store_true', help='do not visualize')
     parser.add_argument('--cocopath', type=str, help='coco path',
                         default='../maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml')
     parser.add_argument('--device', type=str, help='device (cpu/cuda)',
@@ -58,6 +59,7 @@ if __name__ == '__main__':
                         default='KITTI')
     parser.add_argument('--path', type=str, help='dataset path',
                         default='path/to/your/KITTI_odometry/sequences/00')
+    parser.add_argument('--save', action='store_true', help='save')
     args = parser.parse_args()
 
     if args.dataset.lower() == 'kitti':
@@ -68,6 +70,12 @@ if __name__ == '__main__':
         dataset = EuRoCDataset(args.path)
 
     disp_path = '/usr/stud/linp/storage/user/linp/disparity/' + args.path[-2:] + '/'
+
+    if args.save:
+        path = './dym'
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.mkdir(path)
 
     feature_params = dict(maxCorners=1000,
                           qualityLevel=0.1,
@@ -92,10 +100,6 @@ if __name__ == '__main__':
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
 
 
-    visualize = not args.no_viz
-    if visualize:
-        from viewer import MapViewer
-        viewer = MapViewer(sptam1, params)
 
     cam = Camera(
         dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
@@ -198,7 +202,9 @@ if __name__ == '__main__':
                     featurerd.keypoints = list(ofr[frm])
                     featurerd.descriptors = featurerd.descriptors[frm]
                     featurerd.unmatched = featurerd.unmatched[frm]
-                    # cv.imwrite('dym/{}.png'.format(i),c)
+                    if args.save:
+                        cv.imwrite('{}.png'.format(i))
+
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
 
@@ -214,10 +220,6 @@ if __name__ == '__main__':
                 atrajectory.append((cur_tra))
 
 
-
-
-                if visualize:
-                    viewer.update()
             except Exception as e:
                 traceback.print_exc()
                 time.sleep(2)
@@ -229,7 +231,6 @@ if __name__ == '__main__':
         print('tracking rate: {}'.format(dseg.t/dseg.a))
         sptam0.stop()
         sptam1.stop()
-        if visualize:
-            viewer.stop()
+
     else:
         print('path is wrong')

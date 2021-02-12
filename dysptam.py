@@ -203,7 +203,7 @@ if __name__ == '__main__':
                     featurerd.descriptors = featurerd.descriptors[frm]
                     featurerd.unmatched = featurerd.unmatched[frm]
                     if args.save:
-                        cv.imwrite('{}.png'.format(i),c)
+                        cv.imwrite('./dym/{}.png'.format(i),c)
 
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)

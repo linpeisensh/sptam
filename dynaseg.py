@@ -60,7 +60,7 @@ class DynaSeg():
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
-        points = cv.reprojectImageTo3D(dis, self.Q)
+        points = cv.reprojectImageTo3D(disp, self.Q)
         return points
 
     def track_obj(self, mask, idx):
@@ -112,18 +112,13 @@ class DynaSeg():
             cverror = float('inf')
         print(cverror)
         self.p1 = p1
-        return error, imgpts, P
+        ge = norm(error,imgpts)
+        return ge, P
 
     def dyn_seg(self, frame, iml):
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error, imgpts, P = self.projection(frame, frame_gray)
-        merror = np.array(error)
-        for i in range(len(error)):
-            if imgpts[i][0] < 400:
-                merror[i] = max(merror[i] - 15 * 15, 0)
-            if imgpts[i][0] > 900:
-                merror[i] = max(merror[i] - 325, 0)
-        ge = merror > np.median(error)
+        ge, P = self.projection(frame, frame_gray)
+
 
         image = iml.astype(np.uint8)
         prediction = self.coco.compute_prediction(image)
@@ -138,7 +133,7 @@ class DynaSeg():
             mask_dil = cv.dilate(mask, self.kernel)
             ao = 0
             co = 0
-            for i in range(len(error)):
+            for i in range(len(ge)):
                 if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
                     ao += 1
                     if ge[i]:
@@ -217,15 +212,7 @@ class DynaSeg():
         c: dynamic segmentation of iml
         '''
         frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
-        error, imgpts, P = self.projection(frame, frame_gray)
-
-        merror = np.array(error)
-        for i in range(len(error)):
-            if imgpts[i][0] < 400:
-                merror[i] = max(merror[i] - 15 * 15, 0)
-            if imgpts[i][0] > 900:
-                merror[i] = max(merror[i] - 325, 0)
-        ge = merror > np.median(error)
+        ge, P = self.projection(frame, frame_gray)
 
         nobj = len(self.obj)
         res = [True] * nobj
@@ -249,7 +236,7 @@ class DynaSeg():
             if self.obj[ci][3] == idx:
                 ao = 0
                 co = 0
-                for i in range(len(error)):
+                for i in range(len(ge)):
                     x, y = round(P[i][1]), round(P[i][0])
                     if 0 <= x < self.h and 0 <= y < self.w and self.obj[ci][0][x, y]:
                         ao += 1
@@ -312,3 +299,41 @@ def get_IOU(m1, m2):
         return I / U
     else:
         return 0
+
+
+# def norm(error, imgpts):
+#     merror = np.array(error)
+#     lma = imgpts[:, 0] < 400
+#     lme = np.mean(merror[lma])
+#     merror[lma] -= lme * 6
+#
+#     rma = imgpts[:, 0] > 840
+#     rme = np.mean(merror[rma])
+#     merror[rma] -= rme * 6
+#
+#     mma = np.logical_and((~lma), (~rma))
+#     mme = np.mean(merror[mma])
+#     merror[mma] -= mme
+#
+#     ge = merror > 0
+#     return ge
+
+def norm(error, imgpts):
+    merror = np.array(error)
+    lma = imgpts[:, 0] < 400
+
+    rma = imgpts[:, 0] > 840
+
+    mma = np.logical_and((~lma), (~rma))
+
+    ge = np.array([False] * len(merror))
+    lm = merror[lma]
+    rm = merror[rma]
+    mm = merror[mma]
+    if len(lm):
+        ge[lma] = lm > np.percentile(lm, 89)
+    if len(rm):
+        ge[rma] = rm > np.percentile(rm, 89)
+    if len(mm):
+        ge[mma] = mm > np.percentile(mm, 75)
+    return ge

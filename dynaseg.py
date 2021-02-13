@@ -60,7 +60,7 @@ class DynaSeg():
         disp = self.stereoMatchSGBM(iml_, imr_)
         dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
         disp[disp == 0] = dis[disp == 0]
-        points = cv.reprojectImageTo3D(dis, self.Q)
+        points = cv.reprojectImageTo3D(disp, self.Q)
         return points
 
     def track_obj(self, mask, idx):
@@ -304,16 +304,18 @@ def get_IOU(m1, m2):
 def norm(error, imgpts):
     merror = np.array(error)
     lma = imgpts[:, 0] < 400
-    lme = np.mean(merror[lma])
-    merror[lma] -= lme * 2
+    # lme = np.mean(merror[lma])
+    # merror[lma] -= lme * 2
 
     rma = imgpts[:, 0] > 840
-    rme = np.mean(merror[rma])
-    merror[rma] -= rme * 3
+    # rme = np.mean(merror[rma])
+    # merror[rma] -= rme * 3
 
     mma = np.logical_and((~lma), (~rma))
     mme = np.mean(merror[mma])
     merror[mma] -= mme
 
     ge = merror > 0
+    ge[lma] = False
+    ge[rma] = False
     return ge

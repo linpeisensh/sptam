@@ -329,7 +329,13 @@ def norm(error, imgpts):
     mma = np.logical_and((~lma), (~rma))
 
     ge = np.array([False] * len(merror))
-    ge[lma] = merror[lma] > np.percentile(merror[lma], 90)
-    ge[rma] = merror[rma] > np.percentile(merror[rma], 90)
-    ge[mma] = merror[mma] > np.percentile(merror[mma], 75)
+    lm = merror[lma]
+    rm = merror[rma]
+    mm = merror[mma]
+    if lm:
+        ge[lma] = lm > np.percentile(lm, 90)
+    if rm:
+        ge[rma] = rm > np.percentile(rm, 90)
+    if mm:
+        ge[mma] = mm > np.percentile(mm, 75)
     return ge

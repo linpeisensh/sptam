@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="335" column="43" selection-start-line="335" selection-start-column="43" selection-end-line="335" selection-end-column="43" />
+            <state relative-caret-position="310">
+              <caret line="258" column="86" selection-start-line="258" selection-start-column="86" selection-end-line="258" selection-end-column="86" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -219,12 +219,12 @@
       <workItem from="1610734265042" duration="161270000" />
       <workItem from="1612682999814" duration="694000" />
       <workItem from="1612690880483" duration="26190000" />
-      <workItem from="1613114526937" duration="5584000" />
+      <workItem from="1613114526937" duration="6795000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="193738000" />
+    <option name="totallyTimeSpent" value="194949000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
@@ -355,8 +355,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="335" column="43" selection-start-line="335" selection-start-column="43" selection-end-line="335" selection-end-column="43" />
+        <state relative-caret-position="310">
+          <caret line="258" column="86" selection-start-line="258" selection-start-column="86" selection-end-line="258" selection-end-column="86" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

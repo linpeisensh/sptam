@@ -301,21 +301,35 @@ def get_IOU(m1, m2):
         return 0
 
 
+# def norm(error, imgpts):
+#     merror = np.array(error)
+#     lma = imgpts[:, 0] < 400
+#     # lme = np.mean(merror[lma])
+#     # merror[lma] -= lme * 2
+#
+#     rma = imgpts[:, 0] > 840
+#     # rme = np.mean(merror[rma])
+#     # merror[rma] -= rme * 3
+#
+#     mma = np.logical_and((~lma), (~rma))
+#     mme = np.mean(merror[mma])
+#     merror[mma] -= mme
+#
+#     ge = merror > 0
+#     ge[lma] = False
+#     ge[rma] = False
+#     return ge
+
 def norm(error, imgpts):
     merror = np.array(error)
     lma = imgpts[:, 0] < 400
-    # lme = np.mean(merror[lma])
-    # merror[lma] -= lme * 2
 
     rma = imgpts[:, 0] > 840
-    # rme = np.mean(merror[rma])
-    # merror[rma] -= rme * 3
 
     mma = np.logical_and((~lma), (~rma))
-    mme = np.mean(merror[mma])
-    merror[mma] -= mme
 
-    ge = merror > 0
-    ge[lma] = False
-    ge[rma] = False
+    ge = np.array([False] * len(merror))
+    ge[lma] = merror[lma] > np.percentile(merror[lma], 90)
+    ge[rma] = merror[rma] > np.percentile(merror[rma], 90)
+    ge[mma] = merror[mma] > np.percentile(merror[mma], 75)
     return ge

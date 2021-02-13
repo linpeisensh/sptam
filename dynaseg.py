@@ -301,41 +301,39 @@ def get_IOU(m1, m2):
         return 0
 
 
-# def norm(error, imgpts):
-#     merror = np.array(error)
-#     lma = imgpts[:, 0] < 400
-#     # lme = np.mean(merror[lma])
-#     # merror[lma] -= lme * 2
-#
-#     rma = imgpts[:, 0] > 840
-#     # rme = np.mean(merror[rma])
-#     # merror[rma] -= rme * 3
-#
-#     mma = np.logical_and((~lma), (~rma))
-#     mme = np.mean(merror[mma])
-#     merror[mma] -= mme
-#
-#     ge = merror > 0
-#     ge[lma] = False
-#     ge[rma] = False
-#     return ge
-
 def norm(error, imgpts):
     merror = np.array(error)
     lma = imgpts[:, 0] < 400
+    lme = np.mean(merror[lma])
+    merror[lma] -= lme * 6
 
     rma = imgpts[:, 0] > 840
+    rme = np.mean(merror[rma])
+    merror[rma] -= rme * 6
 
     mma = np.logical_and((~lma), (~rma))
+    mme = np.mean(merror[mma])
+    merror[mma] -= mme
 
-    ge = np.array([False] * len(merror))
-    lm = merror[lma]
-    rm = merror[rma]
-    mm = merror[mma]
-    if len(lm):
-        ge[lma] = lm > np.percentile(lm, 90)
-    if len(rm):
-        ge[rma] = rm > np.percentile(rm, 90)
-    if len(mm):
-        ge[mma] = mm > np.percentile(mm, 75)
+    ge = merror > 0
     return ge
+
+# def norm(error, imgpts):
+#     merror = np.array(error)
+#     lma = imgpts[:, 0] < 400
+#
+#     rma = imgpts[:, 0] > 840
+#
+#     mma = np.logical_and((~lma), (~rma))
+#
+#     ge = np.array([False] * len(merror))
+#     lm = merror[lma]
+#     rm = merror[rma]
+#     mm = merror[mma]
+#     if len(lm):
+#         ge[lma] = lm > np.percentile(lm, 90)
+#     if len(rm):
+#         ge[rma] = rm > np.percentile(rm, 90)
+#     if len(mm):
+#         ge[mma] = mm > np.percentile(mm, 75)
+#     return ge

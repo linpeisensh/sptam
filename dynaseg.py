@@ -256,7 +256,7 @@ class DynaSeg():
             cc.append(list(self.obj[i]))
             if idx - self.obj[i][3] != 0:
                 res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 3:  #
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 7:  #
                 c[self.obj[i][0]] = 255
             elif cnd[i]:
                 self.obj[i][2] = max(0, self.obj[i][2] - 0.5)
@@ -331,9 +331,9 @@ def norm(error, imgpts):
     rm = merror[rma]
     mm = merror[mma]
     if len(lm):
-        ge[lma] = lm > np.percentile(lm, 90)
+        ge[lma] = lm > np.percentile(lm, 89)
     if len(rm):
-        ge[rma] = rm > np.percentile(rm, 90)
+        ge[rma] = rm > np.percentile(rm, 89)
     if len(mm):
         ge[mma] = mm > np.percentile(mm, 75)
     return ge

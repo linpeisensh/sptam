@@ -106,6 +106,7 @@ if __name__ == '__main__':
         dataset.cam.width, dataset.cam.height,
         params.frustum_near, params.frustum_far,
         dataset.cam.baseline)
+    print(dataset.cam.fx)
 
     otrajectory = []
     atrajectory = []
@@ -150,8 +151,12 @@ if __name__ == '__main__':
             featurer = ImageFeature(imr, params)
             timestamp = dataset.timestamps[i]
 
-            featurer.extract()
+            time_start = time.time()
+
+            t = Thread(target=featurer.extract)
+            t.start()
             featurel.extract()
+            t.join()
 
 
             print('{}. frame'.format(i))
@@ -166,41 +171,43 @@ if __name__ == '__main__':
                 R = frame.pose.orientation().matrix()
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                otrajectory.append(list(cur_tra))
-                # # dyn + rec
-                # transform_matrix = np.array(frame.transform_matrix)
-                # if i % 5 == 0:
-                #     if i:
-                #         c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                #     dseg.updata(iml,imr,i,transform_matrix)
-                # else:
-                #     c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                # # c = np.zeros(iml.shape[:2])
-                #
+                otrajectory.append((cur_tra))
+
+                # dyn + rec
+                if i % 5 == 0:
+                    if i:
+                        c = dseg.dyn_seg_rec(frame,iml,i)
+                    dseg.updata(iml,imr,i,frame)
+                else:
+                    c = dseg.dyn_seg_rec(frame,iml,i)
+
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
 
-                featurerd.extract()
+                td = Thread(target=featurerd.extract)
+                td.start()
                 featureld.extract()
+                td.join()
 
-                #
-                # if i:
-                #     lm = c
-                #     ofl = np.array(featureld.keypoints)
-                #     flm = maskofkp(ofl, lm)
-                #     featureld.keypoints = list(ofl[flm])
-                #     featureld.descriptors = featureld.descriptors[flm]
-                #     featureld.unmatched = featureld.unmatched[flm]
-                #     rm = c
-                #     ofr = np.array(featurerd.keypoints)
-                #     frm = maskofkp(ofr, rm)
-                #     featurerd.keypoints = list(ofr[frm])
-                #     featurerd.descriptors = featurerd.descriptors[frm]
-                #     featurerd.unmatched = featurerd.unmatched[frm]
-                #     if args.save:
-                #         cv.imwrite('./dym/{}.png'.format(i),c)
-                #
+                if i:
+                    lm = c
+                    ofl = np.array(featureld.keypoints)
+                    flm = maskofkp(ofl, lm)
+                    featureld.keypoints = list(ofl[flm])
+                    featureld.descriptors = featureld.descriptors[flm]
+                    featureld.unmatched = featureld.unmatched[flm]
+                    rm = c
+                    ofr = np.array(featurerd.keypoints)
+                    frm = maskofkp(ofr, rm)
+                    featurerd.keypoints = list(ofr[frm])
+                    featurerd.descriptors = featurerd.descriptors[frm]
+                    featurerd.unmatched = featurerd.unmatched[frm]
+                    if args.save:
+                        cv.imwrite('./dym/{}.png'.format(i),c)
+
+
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
+
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)
                 else:
@@ -209,9 +216,8 @@ if __name__ == '__main__':
 
                 R = aframe.pose.orientation().matrix()
                 t = aframe.pose.position()
-                aur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                print(np.all([featurel.keypoints[i].pt==featureld.keypoints[i].pt for i in range(len(featurel.keypoints))]))
-                atrajectory.append(list(aur_tra))
+                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+                atrajectory.append((cur_tra))
 
 
             except Exception as e:
@@ -222,7 +228,8 @@ if __name__ == '__main__':
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
-        # print('tracking rate: {}'.format(dseg.t/dseg.a))
+        if dseg.a:
+            print('tracking rate: {}'.format(dseg.t/dseg.a))
         sptam0.stop()
         sptam1.stop()
 

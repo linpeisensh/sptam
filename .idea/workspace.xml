@@ -29,11 +29,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dynaseg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="386">
-              <caret line="335" column="44" selection-start-line="335" selection-start-column="44" selection-end-line="335" selection-end-column="44" />
+            <state relative-caret-position="2773">
+              <caret line="258" column="86" selection-start-line="258" selection-start-column="86" selection-end-line="258" selection-end-column="86" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -41,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dysptam.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4465">
-              <caret line="235" column="30" selection-start-line="235" selection-start-column="30" selection-end-line="235" selection-end-column="30" />
+            <state relative-caret-position="367">
+              <caret line="188" column="21" lean-forward="true" selection-start-line="188" selection-start-column="21" selection-end-line="188" selection-end-column="21" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -124,12 +124,12 @@
         <option value="$PROJECT_DIR$/msptam.py" />
         <option value="$PROJECT_DIR$/dataset.py" />
         <option value="$PROJECT_DIR$/script.py" />
-        <option value="$PROJECT_DIR$/dysptam.py" />
         <option value="$PROJECT_DIR$/dynaseg.py" />
+        <option value="$PROJECT_DIR$/dysptam.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-21" />
     <option name="width" value="762" />
     <option name="height" value="758" />
@@ -240,17 +240,18 @@
       <workItem from="1612772333725" duration="4731000" />
       <workItem from="1613114275435" duration="8638000" />
       <workItem from="1613289874999" duration="224000" />
+      <workItem from="1613297744163" duration="673000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="158203000" />
+    <option name="totallyTimeSpent" value="158876000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1376" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15729484" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15957446" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -369,8 +370,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dynaseg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="335" column="44" selection-start-line="335" selection-start-column="44" selection-end-line="335" selection-end-column="44" />
+        <state relative-caret-position="2773">
+          <caret line="258" column="86" selection-start-line="258" selection-start-column="86" selection-end-line="258" selection-end-column="86" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -379,8 +380,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dysptam.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4465">
-          <caret line="235" column="30" selection-start-line="235" selection-start-column="30" selection-end-line="235" selection-end-column="30" />
+        <state relative-caret-position="367">
+          <caret line="188" column="21" lean-forward="true" selection-start-line="188" selection-start-column="21" selection-end-line="188" selection-end-column="21" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -169,6 +169,8 @@ if __name__ == '__main__':
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append((cur_tra))
+                print('len_ol: ',len(featurel))
+                print(frame.transform_matrix)
 
                 # dyn + rec
                 if i % 5 == 0:
@@ -177,9 +179,11 @@ if __name__ == '__main__':
                     dseg.updata(iml,imr,i,frame)
                 else:
                     c = dseg.dyn_seg_rec(frame,iml,i)
-
+                
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
+                print('len_old: ', len(featurel))
+                print(frame.transform_matrix)
 
                 td = Thread(target=featurerd.extract)
                 td.start()
@@ -202,7 +206,7 @@ if __name__ == '__main__':
                     if args.save:
                         cv.imwrite('./dym/{}.png'.format(i),c)
 
-
+                print('len_old: ', len(featurel))
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)

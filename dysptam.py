@@ -210,7 +210,7 @@ if __name__ == '__main__':
                 R = aframe.pose.orientation().matrix()
                 t = aframe.pose.position()
                 aur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                print(np.all(featurel.keypoints[-1].pt==featureld.keypoints[-1].pt))
+                print(np.all([featurel.keypoints[i].pt==featureld.keypoints[i].pt for i in range(len(featurel.keypoints))]))
                 atrajectory.append(list(aur_tra))
 
 

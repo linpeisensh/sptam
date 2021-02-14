@@ -150,10 +150,8 @@ if __name__ == '__main__':
             featurer = ImageFeature(imr, params)
             timestamp = dataset.timestamps[i]
 
-            t = Thread(target=featurer.extract)
-            t.start()
+            featurer.extract()
             featurel.extract()
-            t.join()
 
 
             print('{}. frame'.format(i))
@@ -182,10 +180,8 @@ if __name__ == '__main__':
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
 
-                td = Thread(target=featurerd.extract)
-                td.start()
+                featurerd.extract()
                 featureld.extract()
-                td.join()
                 #
                 # if i:
                 #     lm = c

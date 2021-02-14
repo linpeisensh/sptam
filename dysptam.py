@@ -169,15 +169,15 @@ if __name__ == '__main__':
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append(list(cur_tra))
-                # # dyn + rec
-                # transform_matrix = np.array(frame.transform_matrix)
-                # if i % 5 == 0:
-                #     if i:
-                #         c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                #     dseg.updata(iml,imr,i,transform_matrix)
-                # else:
-                #     c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                c = np.zeros(iml.shape[:2])
+                # dyn + rec
+                transform_matrix = np.array(frame.transform_matrix)
+                if i % 5 == 0:
+                    if i:
+                        c = dseg.dyn_seg_rec(transform_matrix,iml,i)
+                    dseg.updata(iml,imr,i,transform_matrix)
+                else:
+                    c = dseg.dyn_seg_rec(transform_matrix,iml,i)
+                # c = np.zeros(iml.shape[:2])
 
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)

@@ -168,10 +168,10 @@ if __name__ == '__main__':
                 R = frame.pose.orientation().matrix()
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                otrajectory.append((cur_tra))
-                print('len_ol: ',len(featurel.keypoints))
-                print(frame.transform_matrix)
-
+                otrajectory.append(cur_tra)
+                print(cur_tra)
+                print(otrajectory)
+                print()
                 # dyn + rec
                 if i % 5 == 0:
                     if i:
@@ -182,8 +182,6 @@ if __name__ == '__main__':
 
                 featureld = ImageFeature(iml, params)
                 featurerd = ImageFeature(imr, params)
-                print('len_old: ', len(featureld.keypoints))
-                print(frame.transform_matrix)
 
                 td = Thread(target=featurerd.extract)
                 td.start()
@@ -206,7 +204,6 @@ if __name__ == '__main__':
                     if args.save:
                         cv.imwrite('./dym/{}.png'.format(i),c)
 
-                print('len_old: ', len(featureld.keypoints))
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)
@@ -217,7 +214,9 @@ if __name__ == '__main__':
                 R = aframe.pose.orientation().matrix()
                 t = aframe.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                atrajectory.append((cur_tra))
+                atrajectory.append(cur_tra)
+                print(cur_tra)
+                print(atrajectory)
 
 
             except Exception as e:

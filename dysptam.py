@@ -236,7 +236,8 @@ if __name__ == '__main__':
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
-        print('tracking rate: {}'.format(dseg.t/dseg.a))
+        if dseg.a:
+            print('tracking rate: {}'.format(dseg.t/dseg.a))
         sptam0.stop()
         sptam1.stop()
 

@@ -204,8 +204,6 @@ if __name__ == '__main__':
 
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
-                print(td==t)
-                print(aframe==frame)
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)
                 else:

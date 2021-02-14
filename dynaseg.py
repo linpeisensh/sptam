@@ -87,7 +87,7 @@ class DynaSeg():
         # calculate optical flow
         p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
         self.ast *= st
-        tfm = Rt_to_tran(frame.transform_matrix)
+        tfm = Rt_to_tran(np.array(frame.transform_matrix))
         tfm = self.otfm.dot(tfm)
         b = cv.Rodrigues(tfm[:3, :3])
         R = b[0]

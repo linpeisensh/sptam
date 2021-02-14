@@ -168,10 +168,7 @@ if __name__ == '__main__':
                 R = frame.pose.orientation().matrix()
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                otrajectory.append(cur_tra)
-                print(cur_tra)
-                print(otrajectory)
-                print()
+                otrajectory.append(list(cur_tra))
                 # dyn + rec
                 if i % 5 == 0:
                     if i:
@@ -213,10 +210,8 @@ if __name__ == '__main__':
 
                 R = aframe.pose.orientation().matrix()
                 t = aframe.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                atrajectory.append(cur_tra)
-                print(cur_tra)
-                print(atrajectory)
+                aur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+                atrajectory.append(list(aur_tra))
 
 
             except Exception as e:

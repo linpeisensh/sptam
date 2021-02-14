@@ -106,7 +106,6 @@ if __name__ == '__main__':
         dataset.cam.width, dataset.cam.height,
         params.frustum_near, params.frustum_far,
         dataset.cam.baseline)
-    print(dataset.cam.fx)
 
     otrajectory = []
     atrajectory = []
@@ -150,8 +149,6 @@ if __name__ == '__main__':
             featurel = ImageFeature(iml, params)
             featurer = ImageFeature(imr, params)
             timestamp = dataset.timestamps[i]
-
-            time_start = time.time()
 
             t = Thread(target=featurer.extract)
             t.start()
@@ -207,7 +204,8 @@ if __name__ == '__main__':
 
 
                 aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
-
+                print(td==t)
+                print(aframe==frame)
                 if not sptam1.is_initialized():
                     sptam1.initialize(aframe)
                 else:
@@ -228,7 +226,7 @@ if __name__ == '__main__':
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
         save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
         print('save a{}.txt successfully'.format(args.path[-2:]))
-        print('tracking rate: {}'.format(dseg.t/dseg.a))
+        # print('tracking rate: {}'.format(dseg.t/dseg.a))
         sptam0.stop()
         sptam1.stop()
 

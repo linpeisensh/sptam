@@ -179,13 +179,13 @@ if __name__ == '__main__':
                 #     c = dseg.dyn_seg_rec(transform_matrix,iml,i)
                 # # c = np.zeros(iml.shape[:2])
                 #
-                # featureld = ImageFeature(iml, params)
-                # featurerd = ImageFeature(imr, params)
-                #
-                # td = Thread(target=featurerd.extract)
-                # td.start()
-                # featureld.extract()
-                # td.join()
+                featureld = ImageFeature(iml, params)
+                featurerd = ImageFeature(imr, params)
+
+                td = Thread(target=featurerd.extract)
+                td.start()
+                featureld.extract()
+                td.join()
                 #
                 # if i:
                 #     lm = c
@@ -203,16 +203,16 @@ if __name__ == '__main__':
                 #     if args.save:
                 #         cv.imwrite('./dym/{}.png'.format(i),c)
                 #
-                # aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
-                # if not sptam1.is_initialized():
-                #     sptam1.initialize(aframe)
-                # else:
-                #     sptam1.track(aframe)
-                #
-                #
-                # R = aframe.pose.orientation().matrix()
-                # t = aframe.pose.position()
-                # cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
+                if not sptam1.is_initialized():
+                    sptam1.initialize(aframe)
+                else:
+                    sptam1.track(aframe)
+
+
+                R = aframe.pose.orientation().matrix()
+                t = aframe.pose.position()
+                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 atrajectory.append(list(cur_tra))
 
 

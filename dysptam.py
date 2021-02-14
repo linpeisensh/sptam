@@ -169,51 +169,51 @@ if __name__ == '__main__':
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append(list(cur_tra))
-                # dyn + rec
-                transform_matrix = np.array(frame.transform_matrix)
-                if i % 5 == 0:
-                    if i:
-                        c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                    dseg.updata(iml,imr,i,transform_matrix)
-                else:
-                    c = dseg.dyn_seg_rec(transform_matrix,iml,i)
-                # c = np.zeros(iml.shape[:2])
-
-                featureld = ImageFeature(iml, params)
-                featurerd = ImageFeature(imr, params)
-
-                td = Thread(target=featurerd.extract)
-                td.start()
-                featureld.extract()
-                td.join()
-
-                if i:
-                    lm = c
-                    ofl = np.array(featureld.keypoints)
-                    flm = maskofkp(ofl, lm)
-                    featureld.keypoints = list(ofl[flm])
-                    featureld.descriptors = featureld.descriptors[flm]
-                    featureld.unmatched = featureld.unmatched[flm]
-                    rm = c
-                    ofr = np.array(featurerd.keypoints)
-                    frm = maskofkp(ofr, rm)
-                    featurerd.keypoints = list(ofr[frm])
-                    featurerd.descriptors = featurerd.descriptors[frm]
-                    featurerd.unmatched = featurerd.unmatched[frm]
-                    if args.save:
-                        cv.imwrite('./dym/{}.png'.format(i),c)
-
-                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
-                if not sptam1.is_initialized():
-                    sptam1.initialize(aframe)
-                else:
-                    sptam1.track(aframe)
-
-
-                R = aframe.pose.orientation().matrix()
-                t = aframe.pose.position()
-                aur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                atrajectory.append(list(aur_tra))
+                # # dyn + rec
+                # transform_matrix = np.array(frame.transform_matrix)
+                # if i % 5 == 0:
+                #     if i:
+                #         c = dseg.dyn_seg_rec(transform_matrix,iml,i)
+                #     dseg.updata(iml,imr,i,transform_matrix)
+                # else:
+                #     c = dseg.dyn_seg_rec(transform_matrix,iml,i)
+                # # c = np.zeros(iml.shape[:2])
+                #
+                # featureld = ImageFeature(iml, params)
+                # featurerd = ImageFeature(imr, params)
+                #
+                # td = Thread(target=featurerd.extract)
+                # td.start()
+                # featureld.extract()
+                # td.join()
+                #
+                # if i:
+                #     lm = c
+                #     ofl = np.array(featureld.keypoints)
+                #     flm = maskofkp(ofl, lm)
+                #     featureld.keypoints = list(ofl[flm])
+                #     featureld.descriptors = featureld.descriptors[flm]
+                #     featureld.unmatched = featureld.unmatched[flm]
+                #     rm = c
+                #     ofr = np.array(featurerd.keypoints)
+                #     frm = maskofkp(ofr, rm)
+                #     featurerd.keypoints = list(ofr[frm])
+                #     featurerd.descriptors = featurerd.descriptors[frm]
+                #     featurerd.unmatched = featurerd.unmatched[frm]
+                #     if args.save:
+                #         cv.imwrite('./dym/{}.png'.format(i),c)
+                #
+                # aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
+                # if not sptam1.is_initialized():
+                #     sptam1.initialize(aframe)
+                # else:
+                #     sptam1.track(aframe)
+                #
+                #
+                # R = aframe.pose.orientation().matrix()
+                # t = aframe.pose.position()
+                # cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
+                atrajectory.append(list(cur_tra))
 
 
             except Exception as e:

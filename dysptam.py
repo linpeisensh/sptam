@@ -167,6 +167,7 @@ if __name__ == '__main__':
                 t = frame.pose.position()
                 cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
                 otrajectory.append(list(cur_tra))
+                print(len(featurel.keypoints))
                 # # dyn + rec
                 # transform_matrix = np.array(frame.transform_matrix)
                 # if i % 5 == 0:
@@ -182,6 +183,7 @@ if __name__ == '__main__':
 
                 featurerd.extract()
                 featureld.extract()
+                print(len(featureld.keypoints))
                 #
                 # if i:
                 #     lm = c

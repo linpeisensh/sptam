@@ -186,8 +186,10 @@ class DynaSeg():
             self.a += nn
             for j in range(nn):
                 if no[j][4] != -1:
-                    if 0.7 < np.sum(no[j][0]) / np.sum(self.oo[no[j][4]][0]) < 1.3:
-                        self.t += 1
+                    o_area = np.sum(self.oo[no[j][4]][0])
+                    if o_area:
+                        if 0.7 < np.sum(no[j][0]) / o_area < 1.3:
+                            self.t += 1
                 else:
                     f = 1
                     for obj in self.oo:
@@ -256,7 +258,7 @@ class DynaSeg():
             cc.append(list(self.obj[i]))
             if idx - self.obj[i][3] != 0:
                 res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 7:  #
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] >= 3:  #
                 c[self.obj[i][0]] = 255
             elif cnd[i]:
                 self.obj[i][2] = max(0, self.obj[i][2] - 0.5)

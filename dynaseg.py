@@ -217,7 +217,6 @@ class DynaSeg():
         ge, P = self.projection(frame, frame_gray)
 
         nobj = len(self.obj)
-        res = [True] * nobj
         for i in range(nobj):
             cm = np.where(self.obj[i][0] == True)
             cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
@@ -230,7 +229,7 @@ class DynaSeg():
             nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
             self.obj[i][0] = nm.astype(np.bool)
 
-        self.obj = list(self.obj[res])
+        self.obj = list(self.obj)
         self.iou(iml, idx)
         nobj = len(self.obj)
         cnd = [True] * nobj
@@ -244,10 +243,9 @@ class DynaSeg():
                         ao += 1
                         if ge[i]:
                             co += 1
-                if ao > 1:
-                    if co / ao > 0.5:
-                        self.obj[ci][2] += 1
-                        cnd[ci] = False
+                if ao > 1 and co / ao > 0.5:
+                    self.obj[ci][2] += 1
+                    cnd[ci] = False
 
         c = np.zeros((self.h, self.w))
         nobj = len(self.obj)
@@ -258,7 +256,7 @@ class DynaSeg():
             cc.append(list(self.obj[i]))
             if idx - self.obj[i][3] != 0:
                 res[i] = False
-            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] > 3:  #
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] >= 5:  #
                 c[self.obj[i][0]] = 255
             elif cnd[i]:
                 self.obj[i][2] = max(0, self.obj[i][2] - 0.5)
@@ -301,24 +299,6 @@ def get_IOU(m1, m2):
         return I / U
     else:
         return 0
-
-
-# def norm(error, imgpts):
-#     merror = np.array(error)
-#     lma = imgpts[:, 0] < 400
-#     lme = np.mean(merror[lma])
-#     merror[lma] -= lme * 6
-#
-#     rma = imgpts[:, 0] > 840
-#     rme = np.mean(merror[rma])
-#     merror[rma] -= rme * 6
-#
-#     mma = np.logical_and((~lma), (~rma))
-#     mme = np.mean(merror[mma])
-#     merror[mma] -= mme
-#
-#     ge = merror > 0
-#     return ge
 
 def norm(error, imgpts):
     merror = np.array(error)

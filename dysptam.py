@@ -1,245 +1,322 @@
 import numpy as np
 import cv2 as cv
-import time
-import traceback
-import g2o
-import argparse
-from threading import Thread
-import os
-import shutil
-
-from dynaseg import DynaSeg
-from msptam import SPTAM, stereoCamera
-from components import Camera
-from components import StereoFrame
-from feature import ImageFeature
-from params import ParamsKITTI, ParamsEuroc
-from dataset import KITTIOdometry, EuRoCDataset
-
-from maskrcnn_benchmark.config import cfg
-from demo.predictor import COCODemo
+from copy import deepcopy as dp
 
 
-def maskofkp(kp,l_mask):
-  n = len(kp)
-  l_mask = l_mask.squeeze()
-  mok = []
-  for i in range(n):
-    x,y = map(int,kp[i].pt)
-    mok.append(l_mask[y,x]==0)
-  return np.array(mok)
+class DynaSeg():
+    def __init__(self, iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation):
+        self.h, self.w = iml.shape[:2]
+        self.coco = coco_demo
+        self.feature_params = feature_params
+        self.disp_path = disp_path
+        self.config = config
+        self.Q = self.getRectifyTransform()
+        self.paraml = paraml
 
-def save_trajectory(trajectory, filename):
-    with open(filename, 'w') as traj_file:
-        traj_file.writelines('{r00} {r01} {r02} {t0} {r10} {r11} {r12} {t1} {r20} {r21} {r22} {t2}\n'.format(
-            r00=repr(r00),
-            r01=repr(r01),
-            r02=repr(r02),
-            t0=repr(t0),
-            r10=repr(r10),
-            r11=repr(r11),
-            r12=repr(r12),
-            t1=repr(t1),
-            r20=repr(r20),
-            r21=repr(r21),
-            r22=repr(r22),
-            t2=repr(t2)
-        ) for r00, r01, r02, t0, r10, r11, r12, t1, r20, r21, r22, t2 in trajectory)
+        self.lk_params = lk_params
 
+        self.mtx = mtx
+        self.dist = dist
+        self.kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
 
+        self.obj = np.array([])
+        self.IOU_thd = 0.0
+        self.dyn_thd = 0.6
 
-if __name__ == '__main__':
+        self.a = 0
+        self.t = 0
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--cocopath', type=str, help='coco path',
-                        default='../maskrcnn-benchmark/configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml')
-    parser.add_argument('--device', type=str, help='device (cpu/cuda)',
-                        default='cpu')
-    parser.add_argument('--dataset', type=str, help='dataset (KITTI/EuRoC)',
-                        default='KITTI')
-    parser.add_argument('--path', type=str, help='dataset path',
-                        default='path/to/your/KITTI_odometry/sequences/00')
-    parser.add_argument('--save', action='store_true', help='save')
-    args = parser.parse_args()
+    def updata(self, iml, imr, i, k_frame):
+        self.old_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        self.p = cv.goodFeaturesToTrack(self.old_gray, mask=None, **self.feature_params)
+        self.p1 = dp(self.p)
+        self.ast = np.ones((self.p.shape[0], 1))
+        self.points = self.get_points(i, iml, imr)
+        self.otfm = np.linalg.inv(Rt_to_tran(k_frame.transform_matrix))
 
-    if args.dataset.lower() == 'kitti':
-        params = ParamsKITTI()
-        dataset = KITTIOdometry(args.path)
-    elif args.dataset.lower() == 'euroc':
-        params = ParamsEuroc()
-        dataset = EuRoCDataset(args.path)
+    def getRectifyTransform(self):
+        left_K = self.config.cam_matrix_left
+        right_K = self.config.cam_matrix_right
+        left_distortion = self.config.distortion_l
+        right_distortion = self.config.distortion_r
+        R = self.config.R
+        T = self.config.T
 
-    disp_path = '/usr/stud/linp/storage/user/linp/disparity/' + args.path[-2:] + '/'
+        R1, R2, P1, P2, Q, roi1, roi2 = cv.stereoRectify(left_K, left_distortion, right_K, right_distortion,
+                                                         (self.w, self.h), R, T, alpha=0)
+        return Q
 
-    if args.save:
-        path = './dym'
-        if os.path.exists(path):
-            shutil.rmtree(path)
-        os.mkdir(path)
+    def stereoMatchSGBM(self, iml, imr):
+        left_matcher = cv.StereoSGBM_create(**self.paraml)
 
-    feature_params = dict(maxCorners=1000,
-                          qualityLevel=0.1,
-                          minDistance=7,
-                          blockSize=7)
+        disparity_left = left_matcher.compute(iml, imr)
 
-    # Parameters for lucas kanade optical flow
-    lk_params = dict(winSize=(15, 15),
-                     maxLevel=2,
-                     criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+        trueDisp_left = disparity_left.astype(np.float32) / 16.
 
+        return trueDisp_left
 
+    def get_points(self, i, iml, imr):
+        iml_, imr_ = preprocess(iml, imr)
+        disp = self.stereoMatchSGBM(iml_, imr_)
+        dis = np.load(self.disp_path + str(i).zfill(6) + '.npy')
+        disp[disp == 0] = dis[disp == 0]
+        points = cv.reprojectImageTo3D(dis, self.Q)
+        return points
 
-    sptam0 = SPTAM(params)
-    sptam1 = SPTAM(params)
-
-    config = stereoCamera()
-    mtx = np.array([[707.0912, 0, 601.8873], [0, 707.0912, 183.1104], [0, 0, 1]])
-    dist = np.array([[0] * 4]).reshape(1, 4).astype(np.float32)
-
-    dilation = 2
-    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2 * dilation + 1, 2 * dilation + 1))
-
-
-
-    cam = Camera(
-        dataset.cam.fx, dataset.cam.fy, dataset.cam.cx, dataset.cam.cy,
-        dataset.cam.width, dataset.cam.height,
-        params.frustum_near, params.frustum_far,
-        dataset.cam.baseline)
-    print(dataset.cam.fx)
-
-    otrajectory = []
-    atrajectory = []
-    n = len(dataset)
-    print('sequence {}: {} images'.format(args.path[-2:],n))
-
-
-    config_file = args.cocopath
-    # "configs/caffe2/e2e_mask_rcnn_R_50_FPN_1x_caffe2.yaml"
-
-    # update the config options with the config file
-    cfg.merge_from_file(config_file)
-    # manual override some options
-    cfg.merge_from_list(["MODEL.DEVICE", args.device])
-    coco_demo = COCODemo(
-        cfg,
-        min_image_size=800,
-        confidence_threshold=0.7,
-    )
-
-    paraml = {'minDisparity': 1,
-              'numDisparities': 64,
-              'blockSize': 10,
-              'P1': 4 * 3 * 9 ** 2,
-              'P2': 4 * 3 * 9 ** 2,
-              'disp12MaxDiff': 1,
-              'preFilterCap': 10,
-              'uniquenessRatio': 15,
-              'speckleWindowSize': 100,
-              'speckleRange': 1,
-              'mode': cv.STEREO_SGBM_MODE_SGBM_3WAY
-              }
-
-    if n:
-        iml = cv.imread(dataset.left[0], cv.IMREAD_UNCHANGED)
-        dseg = DynaSeg(iml, coco_demo, feature_params, disp_path, config, paraml, lk_params, mtx, dist, dilation)
+    def track_obj(self, mask, idx):
+        n = len(self.obj)
+        max_IOU = 0
+        ci = n
+        mIOU = 0
         for i in range(n):
-            iml = cv.imread(dataset.left[i], cv.IMREAD_UNCHANGED)
-            imr = cv.imread(dataset.right[i], cv.IMREAD_UNCHANGED)
-            # original
-            featurel = ImageFeature(iml, params)
-            featurer = ImageFeature(imr, params)
-            timestamp = dataset.timestamps[i]
+            cIOU = get_IOU(mask, self.obj[i][0])
+            if cIOU > self.IOU_thd and cIOU > max_IOU:
+                max_IOU = cIOU
+                ci = i
+            mIOU = max(cIOU, mIOU)
+        if ci == n:
+            # print(n,mIOU)
+            self.obj.append([mask.astype(np.bool), 1, 0, idx])
+        else:
+            self.obj[ci][1] += 1
+            self.obj[ci][0] = mask.astype(np.bool)
+            self.obj[ci][3] = idx
+        return ci
 
-            time_start = time.time()
+    def projection(self, frame, frame_gray):
+        # calculate optical flow
+        p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
+        self.ast *= st
+        tfm = Rt_to_tran(np.array(frame.transform_matrix))
+        tfm = self.otfm.dot(tfm)
+        b = cv.Rodrigues(tfm[:3, :3])
+        R = b[0]
+        t = tfm[:3, 3].reshape((3, 1))
 
-            t = Thread(target=featurer.extract)
-            t.start()
-            featurel.extract()
-            t.join()
+        P = p1[self.ast == 1]
+        objpa = np.array([self.points[int(y), int(x)] for x, y in self.p[self.ast == 1].squeeze()])
+        imgpts, jac = cv.projectPoints(objpa, R, -t, self.mtx, self.dist)
+        imgpts = imgpts.squeeze()
+        P = P.squeeze()[~np.isnan(imgpts).any(axis=1)]
+        imgpts = imgpts[~np.isnan(imgpts).any(axis=1)]
+        P = P[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        imgpts = imgpts[(0 < imgpts[:, 0]) * (imgpts[:, 0] < self.w) * (0 < imgpts[:, 1]) * (imgpts[:, 1] < self.h)]
+        error = ((P - imgpts) ** 2).sum(-1)
+        P = P[error < 1e6]
+        imgpts = imgpts[error < 1e6].astype(np.float32)
+        error = error[error < 1e6]
+
+        if len(imgpts):
+            cverror = cv.norm(P, imgpts, cv.NORM_L2) / len(imgpts)
+        else:
+            cverror = float('inf')
+        print(cverror)
+        self.p1 = p1
+        ge = norm(error,imgpts)
+        return ge, P
+
+    def dyn_seg(self, frame, iml):
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        ge, P = self.projection(frame, frame_gray)
 
 
-            print('{}. frame'.format(i))
-            try:
-                frame = StereoFrame(i, g2o.Isometry3d(), featurel, featurer, cam, timestamp=timestamp)
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        masks = top.get_field("mask").numpy()
 
-                if not sptam0.is_initialized():
-                    sptam0.initialize(frame)
+        c = np.zeros((self.h, self.w))
+        n = len(masks)
+        for i in range(n):
+            mask = masks[i].squeeze()
+            mask = mask.astype(np.uint8)
+            mask_dil = cv.dilate(mask, self.kernel)
+            ao = 0
+            co = 0
+            for i in range(len(ge)):
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
+                    ao += 1
+                    if ge[i]:
+                        co += 1
+            if ao > 1 and co / ao > 0.5:
+                c[mask_dil.astype(np.bool)] = 255
+        self.old_gray = frame_gray.copy()
+        return c
+
+    def iou(self, iml, idx):
+        image = iml.astype(np.uint8)
+        prediction = self.coco.compute_prediction(image)
+        top = self.coco.select_top_predictions(prediction)
+        omasks = top.get_field("mask").numpy()
+        masks = []
+        for mask in omasks:
+            mask = mask.squeeze().astype(np.uint8)
+            mask = cv.dilate(mask, self.kernel)
+            masks.append(mask)
+        res = []
+        nc = len(self.obj)
+        nm = len(masks)
+        for i in range(nm):
+            for j in range(nc):
+                cIOU = get_IOU(masks[i], self.obj[j][0])
+                res.append((cIOU, j, i))
+        nu_obj = [True] * nc
+        nu_mask = [True] * nm
+        res.sort(key=lambda x: -x[0])
+        for x in res:
+            if nu_obj[x[1]] and nu_mask[x[2]]:
+                if x[0] > self.IOU_thd:
+                    self.obj[x[1]][0] = masks[x[2]].astype(np.bool)
+                    self.obj[x[1]][1] += 1
+                    self.obj[x[1]][3] = idx
+                    self.obj[x[1]][4] = x[1]
+                    nu_obj[x[1]] = False
+                    nu_mask[x[2]] = False
                 else:
-                    sptam0.track(frame)
+                    break
+        for i in range(nm):
+            if nu_mask[i]:
+                self.obj.append([masks[i].astype(np.bool), 1, 0, idx,-1])
+        self.track_rate(idx)
+        return
 
-                R = frame.pose.orientation().matrix()
-                t = frame.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                otrajectory.append((cur_tra))
-
-                # # dyn + rec
-                # if i % 5 == 0:
-                #     if i:
-                #         c = dseg.dyn_seg_rec(frame,iml,i)
-                #     dseg.updata(iml,imr,i,frame)
-                # else:
-                #     c = dseg.dyn_seg_rec(frame,iml,i)
-
-                # dyn + rec
-                if i % 5 == 0:
-                    if i:
-                        c = dseg.dyn_seg(frame, iml)
-                    dseg.updata(iml, imr, i, frame)
+    def track_rate(self,idx):
+        if idx == 1:
+            self.oo = list(self.obj)
+        else:
+            no = self.obj
+            nn = len(no)
+            self.a += nn
+            for j in range(nn):
+                if no[j][4] != -1:
+                    o_area = np.sum(self.oo[no[j][4]][0])
+                    if o_area:
+                        if 0.7 < np.sum(no[j][0]) / o_area < 1.3:
+                            self.t += 1
                 else:
-                    c = dseg.dyn_seg(frame, iml)
+                    f = 0
+                    for obj in self.oo:
+                        if np.sum(obj[0]):
+                            if 0.7 < np.sum(no[j][0]) / np.sum(obj[0]) < 1.3 and get_IOU(no[j][0], obj[0]):
+                                f = 1
+                                break
+                    if f:
+                        self.t += 1
+            self.oo = list(self.obj)
+        return
 
-                featureld = ImageFeature(iml, params)
-                featurerd = ImageFeature(imr, params)
+    def dyn_seg_rec(self, frame, iml, idx):
+        '''
+        dynamic segmentation based on projection error and object recording
+        :param frame: original sptam frame after tracking
+        :param iml: left image
+        :return:
+        c: dynamic segmentation of iml
+        '''
+        frame_gray = cv.cvtColor(iml, cv.COLOR_BGR2GRAY)
+        ge, P = self.projection(frame, frame_gray)
 
-                td = Thread(target=featurerd.extract)
-                td.start()
-                featureld.extract()
-                td.join()
+        nobj = len(self.obj)
+        for i in range(nobj):
+            cm = np.where(self.obj[i][0] == True)
+            cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
+            nmps, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, cmps, None, **self.lk_params)
+            nm = np.zeros_like(self.obj[i][0], dtype=np.uint8)
+            for nmp in nmps:
+                x, y = round(nmp[1]), round(nmp[0])
+                if 0 <= x < self.h and 0 <= y < self.w:
+                    nm[x, y] = 1
+            nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
+            self.obj[i][0] = nm.astype(np.bool)
 
-                if i:
-                    lm = c
-                    ofl = np.array(featureld.keypoints)
-                    flm = maskofkp(ofl, lm)
-                    featureld.keypoints = list(ofl[flm])
-                    featureld.descriptors = featureld.descriptors[flm]
-                    featureld.unmatched = featureld.unmatched[flm]
-                    rm = c
-                    ofr = np.array(featurerd.keypoints)
-                    frm = maskofkp(ofr, rm)
-                    featurerd.keypoints = list(ofr[frm])
-                    featurerd.descriptors = featurerd.descriptors[frm]
-                    featurerd.unmatched = featurerd.unmatched[frm]
-                    if args.save:
-                        cv.imwrite('./dym/{}.png'.format(i),c)
+        self.obj = list(self.obj)
+        self.iou(iml, idx)
+        nobj = len(self.obj)
+        cnd = [True] * nobj
+        for ci in range(nobj):
+            if self.obj[ci][3] == idx:
+                ao = 0
+                co = 0
+                for i in range(len(ge)):
+                    x, y = round(P[i][1]), round(P[i][0])
+                    if 0 <= x < self.h and 0 <= y < self.w and self.obj[ci][0][x, y]:
+                        ao += 1
+                        if ge[i]:
+                            co += 1
+                if ao > 1 and co / ao > 0.5:
+                    self.obj[ci][2] += 1
+                    cnd[ci] = False
+
+        c = np.zeros((self.h, self.w))
+        nobj = len(self.obj)
+        res = [True] * nobj
+        print('num of objs', nobj)
+        cc = []
+        for i in range(nobj):
+            cc.append(list(self.obj[i]))
+            if idx - self.obj[i][3] != 0:
+                res[i] = False
+            elif self.obj[i][2] / self.obj[i][1] >= self.dyn_thd or self.obj[i][2] >= 5:  #
+                c[self.obj[i][0]] = 255
+            elif cnd[i]:
+                self.obj[i][2] = max(0, self.obj[i][2] - 0.5)
+        self.obj = np.array(self.obj, dtype=object)
+        self.obj = self.obj[res]
+        for obj in self.obj:
+            print('a: {}, d: {}'.format(obj[1],obj[2]))
+        self.old_gray = frame_gray.copy()
+        return c
 
 
-                aframe = StereoFrame(i, g2o.Isometry3d(), featureld, featurerd, cam, timestamp=timestamp)
-
-                if not sptam1.is_initialized():
-                    sptam1.initialize(aframe)
-                else:
-                    sptam1.track(aframe)
-
-
-                R = aframe.pose.orientation().matrix()
-                t = aframe.pose.position()
-                cur_tra = list(R[0]) + [t[0]] + list(R[1]) + [t[1]] + list(R[2]) + [t[2]]
-                atrajectory.append((cur_tra))
+def Rt_to_tran(tfm):
+    res = np.zeros((4, 4))
+    res[:3, :] = tfm[:3, :]
+    res[3, 3] = 1
+    return res
 
 
-            except Exception as e:
-                traceback.print_exc()
-                time.sleep(2)
+def preprocess(img1, img2):
+    im1 = cv.cvtColor(img1, cv.COLOR_BGR2GRAY)
+    im2 = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
+
+    im1 = cv.equalizeHist(im1)
+    im2 = cv.equalizeHist(im2)
+
+    return im1, im2
 
 
-        save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))
-        save_trajectory(atrajectory,'a{}.txt'.format(args.path[-2:]))
-        print('save a{}.txt successfully'.format(args.path[-2:]))
-        if dseg.a:
-            print('tracking rate: {}'.format(dseg.t/dseg.a))
-        sptam0.stop()
-        sptam1.stop()
-
+def get_IOU(m1, m2):
+    I = np.sum(np.logical_and(m1, m2))
+    U = np.sum(np.logical_or(m1, m2))
+    s1 = np.sum(m1)
+    s2 = np.sum(m2)
+    if s1 and s2:
+        s = s1 / s2 if s1 > s2 else s2 / s1
+        U *= s
     else:
-        print('path is wrong')
+        U = 0
+    if U:
+        return I / U
+    else:
+        return 0
+
+def norm(error, imgpts):
+    merror = np.array(error)
+    lma = imgpts[:, 0] < 400
+
+    rma = imgpts[:, 0] > 840
+
+    mma = np.logical_and((~lma), (~rma))
+
+    ge = np.array([False] * len(merror))
+    lm = merror[lma]
+    rm = merror[rma]
+    mm = merror[mma]
+    if len(lm):
+        ge[lma] = lm > np.percentile(lm, 89)
+    if len(rm):
+        ge[rma] = rm > np.percentile(rm, 89)
+    if len(mm):
+        ge[mma] = mm > np.percentile(mm, 75)
+    return ge

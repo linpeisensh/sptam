@@ -222,7 +222,8 @@ if __name__ == '__main__':
 
             except Exception as e:
                 traceback.print_exc()
-                time.sleep(2)
+                print('error in frame {}'.format(i))
+                break
 
 
         save_trajectory(otrajectory,'o{}.txt'.format(args.path[-2:]))

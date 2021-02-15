@@ -134,13 +134,13 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(ge)):
-                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1
-            if ao > 1:
-                if co / ao > 0.5:
-                    c[mask_dil.astype(np.bool)] = 255
+            if ao > 1 and co / ao > 0.5:
+                c[mask_dil.astype(np.bool)] = 255
         self.old_gray = frame_gray.copy()
         return c
 
@@ -178,6 +178,10 @@ class DynaSeg():
         for i in range(nm):
             if nu_mask[i]:
                 self.obj.append([masks[i].astype(np.bool), 1, 0, idx,-1])
+        self.track_rate(idx)
+        return
+
+    def track_rate(self,idx):
         if idx == 1:
             self.oo = list(self.obj)
         else:
@@ -191,18 +195,15 @@ class DynaSeg():
                         if 0.7 < np.sum(no[j][0]) / o_area < 1.3:
                             self.t += 1
                 else:
-                    f = 1
+                    f = 0
                     for obj in self.oo:
                         if np.sum(obj[0]):
                             if 0.7 < np.sum(no[j][0]) / np.sum(obj[0]) < 1.3 and get_IOU(no[j][0], obj[0]):
-                                f = 0
+                                f = 1
                                 break
-                        else:
-                            f = 0
-                            break
                     if f:
                         self.t += 1
-                    self.oo = list(self.obj)
+            self.oo = list(self.obj)
         return
 
     def dyn_seg_rec(self, frame, iml, idx):
@@ -217,7 +218,6 @@ class DynaSeg():
         ge, P = self.projection(frame, frame_gray)
 
         nobj = len(self.obj)
-        res = [True] * nobj
         for i in range(nobj):
             cm = np.where(self.obj[i][0] == True)
             cmps = np.array(list(zip(cm[1], cm[0]))).astype(np.float32)
@@ -230,7 +230,7 @@ class DynaSeg():
             nm = cv.erode(cv.dilate(nm, self.kernel), self.kernel)
             self.obj[i][0] = nm.astype(np.bool)
 
-        self.obj = list(self.obj[res])
+        self.obj = list(self.obj)
         self.iou(iml, idx)
         nobj = len(self.obj)
         cnd = [True] * nobj
@@ -244,10 +244,9 @@ class DynaSeg():
                         ao += 1
                         if ge[i]:
                             co += 1
-                if ao > 1:
-                    if co / ao > 0.5:
-                        self.obj[ci][2] += 1
-                        cnd[ci] = False
+                if ao > 1 and co / ao > 0.5:
+                    self.obj[ci][2] += 1
+                    cnd[ci] = False
 
         c = np.zeros((self.h, self.w))
         nobj = len(self.obj)
@@ -301,24 +300,6 @@ def get_IOU(m1, m2):
         return I / U
     else:
         return 0
-
-
-# def norm(error, imgpts):
-#     merror = np.array(error)
-#     lma = imgpts[:, 0] < 400
-#     lme = np.mean(merror[lma])
-#     merror[lma] -= lme * 6
-#
-#     rma = imgpts[:, 0] > 840
-#     rme = np.mean(merror[rma])
-#     merror[rma] -= rme * 6
-#
-#     mma = np.logical_and((~lma), (~rma))
-#     mme = np.mean(merror[mma])
-#     merror[mma] -= mme
-#
-#     ge = merror > 0
-#     return ge
 
 def norm(error, imgpts):
     merror = np.array(error)

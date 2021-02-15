@@ -87,7 +87,7 @@ class DynaSeg():
         # calculate optical flow
         p1, st, err = cv.calcOpticalFlowPyrLK(self.old_gray, frame_gray, self.p1, None, **self.lk_params)
         self.ast *= st
-        tfm = Rt_to_tran(frame.transform_matrix)
+        tfm = Rt_to_tran(np.array(frame.transform_matrix))
         tfm = self.otfm.dot(tfm)
         b = cv.Rodrigues(tfm[:3, :3])
         R = b[0]
@@ -134,13 +134,13 @@ class DynaSeg():
             ao = 0
             co = 0
             for i in range(len(ge)):
-                if mask_dil[min(round(P[i][1]), self.h - 1), min(round(P[i][0]), self.w - 1)]:
+                x, y = round(P[i][1]), round(P[i][0])
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[0][x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1
-            if ao > 1:
-                if co / ao > 0.5:
-                    c[mask_dil.astype(np.bool)] = 255
+            if ao > 1 and co / ao > 0.5:
+                c[mask_dil.astype(np.bool)] = 255
         self.old_gray = frame_gray.copy()
         return c
 
@@ -186,8 +186,10 @@ class DynaSeg():
             self.a += nn
             for j in range(nn):
                 if no[j][4] != -1:
-                    if 0.7 < np.sum(no[j][0]) / np.sum(self.oo[no[j][4]][0]) < 1.3:
-                        self.t += 1
+                    o_area = np.sum(self.oo[no[j][4]][0])
+                    if o_area:
+                        if 0.7 < np.sum(no[j][0]) / o_area < 1.3:
+                            self.t += 1
                 else:
                     f = 1
                     for obj in self.oo:

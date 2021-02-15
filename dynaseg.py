@@ -135,7 +135,7 @@ class DynaSeg():
             co = 0
             for i in range(len(ge)):
                 x, y = round(P[i][1]), round(P[i][0])
-                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[0][x, y]:
+                if 0 <= x < self.h and 0 <= y < self.w and mask_dil[x, y]:
                     ao += 1
                     if ge[i]:
                         co += 1
@@ -178,6 +178,10 @@ class DynaSeg():
         for i in range(nm):
             if nu_mask[i]:
                 self.obj.append([masks[i].astype(np.bool), 1, 0, idx,-1])
+        self.track_rate(idx)
+        return
+
+    def track_rate(self,idx):
         if idx == 1:
             self.oo = list(self.obj)
         else:
@@ -191,18 +195,15 @@ class DynaSeg():
                         if 0.7 < np.sum(no[j][0]) / o_area < 1.3:
                             self.t += 1
                 else:
-                    f = 1
+                    f = 0
                     for obj in self.oo:
                         if np.sum(obj[0]):
                             if 0.7 < np.sum(no[j][0]) / np.sum(obj[0]) < 1.3 and get_IOU(no[j][0], obj[0]):
-                                f = 0
+                                f = 1
                                 break
-                        else:
-                            f = 0
-                            break
                     if f:
                         self.t += 1
-                    self.oo = list(self.obj)
+            self.oo = list(self.obj)
         return
 
     def dyn_seg_rec(self, frame, iml, idx):

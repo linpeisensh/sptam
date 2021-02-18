@@ -318,5 +318,5 @@ def norm(error, imgpts):
     if len(rm):
         ge[rma] = rm > np.percentile(rm, 89)
     if len(mm):
-        ge[mma] = mm > np.percentile(mm, 89)
+        ge[mma] = mm > np.percentile(mm, 75)
     return ge
